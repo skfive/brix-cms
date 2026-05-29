@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # SQLite 파일을 named volume 에 영속화 (컨테이너 재시작 후에도 데이터 보존)
+      DATABASE_URL: "file:/data/dev.db"
+    volumes:
+      - db-data:/data
+    restart: unless-stopped
+
+volumes:
+  db-data:
+    driver: local

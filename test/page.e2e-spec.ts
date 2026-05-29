@@ -184,17 +184,14 @@ describe('[BF-697] PageModule CRUD + 인증 + 슬러그 퍼블릭 조회 E2E', (
     });
 
     it('PATCH /pages/1 — 인증 토큰 없으면 HTTP 401', async () => {
-      const { status } = await httpPatch(
-        `http://localhost:${port}/pages/1`,
-        { title: '비인증 수정 시도' },
-      );
+      const { status } = await httpPatch(`http://localhost:${port}/pages/1`, {
+        title: '비인증 수정 시도',
+      });
       expect(status).toBe(401);
     });
 
     it('DELETE /pages/1 — 인증 토큰 없으면 HTTP 401', async () => {
-      const { status } = await httpDelete(
-        `http://localhost:${port}/pages/1`,
-      );
+      const { status } = await httpDelete(`http://localhost:${port}/pages/1`);
       expect(status).toBe(401);
     });
   });

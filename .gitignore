@@ -38,6 +38,7 @@ bower_components
 build/Release
 
 # Dependency directories
+node_modules
 node_modules/
 jspm_packages/
 
@@ -153,3 +154,6 @@ dist/
 
 # Test coverage
 coverage/
+
+# Jest transform cache (로컬 캐시 디렉토리)
+.jest-cache/

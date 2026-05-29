@@ -1,13 +1,19 @@
 # ────────────────────────────────────────────────────────────
-# Stage 1: builder — 전체 의존성 설치 + NestJS 빌드
+# Single-stage build — pnpm + Prisma + Alpine
+#
+# 멀티스테이지 구조에서 발생하는 pnpm 가상 스토어 경로 불일치
+# (.prisma/client/default MODULE_NOT_FOUND) 를 방지하기 위해
+# 단일 스테이지로 통합한다.
+# prisma generate 와 nest build 가 같은 node_modules 를 공유하므로
+# 생성된 Prisma 클라이언트가 항상 올바른 경로에 존재함이 보장된다.
 # ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
-# Alpine 에서 Prisma query engine 빌드·generate 에 openssl 필요
+# Alpine(musl) 에서 Prisma query engine / migrate engine 실행에 openssl 필요
 RUN apk add --no-cache openssl
 
 WORKDIR /app
@@ -17,37 +23,9 @@ COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+
+# prebuild: prisma generate → nest build 순서로 실행됨
 RUN pnpm run build
-
-# ────────────────────────────────────────────────────────────
-# Stage 2: production — 런타임 이미지
-# ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS production
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
-# Alpine 에서 Prisma migrate deploy / query engine 실행에 openssl 필요
-# 없으면 "Prisma failed to detect the libssl/openssl version" 에러 발생
-RUN apk add --no-cache openssl
-
-WORKDIR /app
-
-# 프로덕션 의존성만 설치
-COPY package.json pnpm-lock.yaml .npmrc ./
-RUN pnpm install --frozen-lockfile --prod
-
-# 빌드 산출물 복사
-COPY --from=builder /app/dist ./dist
-
-# Prisma 스키마 + 마이그레이션 복사 (migrate deploy 런타임 실행 필요)
-COPY prisma ./prisma
-
-# Prisma CLI 복사 (devDep 이지만 migrate deploy 에 필요)
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 EXPOSE 3000
 

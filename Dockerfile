@@ -7,6 +7,9 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
+# Alpine 에서 Prisma query engine 빌드·generate 에 openssl 필요
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # lockfile 기반으로 의존성 캐시 레이어 최적화
@@ -24,6 +27,10 @@ FROM node:20-alpine AS production
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+
+# Alpine 에서 Prisma migrate deploy / query engine 실행에 openssl 필요
+# 없으면 "Prisma failed to detect the libssl/openssl version" 에러 발생
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 

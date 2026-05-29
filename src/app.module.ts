@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PageModule } from './page/page.module';
 import { PostsModule } from './posts/posts.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -13,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
     }),
     PrismaModule,
     PostsModule,
+    PageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

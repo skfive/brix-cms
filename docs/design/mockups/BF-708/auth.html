@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>brix-CMS — Auth Mockup (BF-708)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design Tokens (shadcn/ui Zinc) ── */
+    :root {
+      --background: hsl(0 0% 100%);
+      --foreground: hsl(240 10% 3.9%);
+      --card: hsl(0 0% 100%);
+      --card-foreground: hsl(240 10% 3.9%);
+      --primary: hsl(240 5.9% 10%);
+      --primary-foreground: hsl(0 0% 98%);
+      --secondary: hsl(240 4.8% 95.9%);
+      --secondary-foreground: hsl(240 5.9% 10%);
+      --muted: hsl(240 4.8% 95.9%);
+      --muted-foreground: hsl(240 3.8% 46.1%);
+      --accent: hsl(240 4.8% 95.9%);
+      --destructive: hsl(0 84.2% 60.2%);
+      --destructive-foreground: hsl(0 0% 98%);
+      --border: hsl(240 5.9% 90%);
+      --input: hsl(240 5.9% 90%);
+      --ring: hsl(240 5.9% 10%);
+      --radius: 0.5rem;
+
+      /* 상태 배지 */
+      --badge-draft-bg: hsl(240 4.8% 95.9%);
+      --badge-draft-text: hsl(240 3.8% 46.1%);
+      --badge-published-bg: #DCFCE7;
+      --badge-published-text: #16A34A;
+      --badge-archived-bg: #FEF9C3;
+      --badge-archived-text: #CA8A04;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--foreground);
+      background: var(--muted);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .auth-root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      gap: 1.5rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .card-header { margin-bottom: 1.5rem; }
+    .card-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--primary);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary-foreground);
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+    .logo-text {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--foreground);
+    }
+    .card-description {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+    }
+
+    /* ── Form Elements ── */
+    .form { display: flex; flex-direction: column; gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 0.375rem; }
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--foreground);
+    }
+    label .required { color: var(--destructive); margin-left: 2px; }
+    input[type="email"], input[type="password"], input[type="text"] {
+      height: 2.25rem;
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--input);
+      background: var(--background);
+      padding: 0 0.75rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--foreground);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 2px rgba(24,24,27,0.12);
+    }
+    input.error { border-color: var(--destructive); }
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--destructive);
+    }
+    .field-hint {
+      font-size: 0.75rem;
+      color: var(--muted-foreground);
+    }
+
+    /* ── Button ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      height: 2.25rem;
+      padding: 0 1rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.15s, background 0.15s;
+      text-decoration: none;
+    }
+    .btn-default {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+    .btn-default:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent;
+      color: var(--foreground);
+      border-color: var(--border);
+    }
+    .btn-outline:hover { background: var(--accent); }
+    .btn-full { width: 100%; }
+    .btn-sm { height: 2rem; padding: 0 0.75rem; font-size: 0.8125rem; }
+    .btn-loading { opacity: 0.7; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Alert ── */
+    .alert {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .alert-destructive {
+      background: hsl(0 84.2% 97%);
+      border: 1px solid hsl(0 84.2% 85%);
+      color: hsl(0 70% 35%);
+    }
+    .alert-icon { font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Link ── */
+    .link-row {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+    }
+    .link {
+      color: var(--foreground);
+      font-weight: 500;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    /* ── Section Labels (Mockup Navigation) ── */
+    .section-nav {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .section-tab {
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--background);
+      color: var(--muted-foreground);
+      transition: all 0.15s;
+    }
+    .section-tab.active {
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+
+    /* ── Page Sections ── */
+    .page-section { display: none; }
+    .page-section.visible { display: block; }
+
+    /* ── Logout Dialog ── */
+    .dialog-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .dialog-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .dialog-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .dialog-desc {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .dialog-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+    .btn-destructive {
+      background: var(--destructive);
+      color: var(--destructive-foreground);
+      border-color: var(--destructive);
+    }
+    .btn-destructive:hover { opacity: 0.9; }
+
+    /* ── Mockup Label ── */
+    .mockup-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Password Strength ── */
+    .strength-bar {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .strength-seg {
+      height: 3px;
+      flex: 1;
+      border-radius: 9999px;
+      background: var(--border);
+    }
+    .strength-seg.filled { background: #16A34A; }
+    .strength-seg.weak { background: var(--destructive); }
+    .strength-seg.medium { background: #CA8A04; }
+  </style>
+</head>
+<body>
+
+<!-- ── Mockup Navigation ── -->
+<div style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:200;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+  <span class="mockup-badge">🎨 Auth Mockup · BF-708</span>
+  <button class="section-tab active" onclick="showSection('login', this)">로그인</button>
+  <button class="section-tab" onclick="showSection('register', this)">가입</button>
+  <button class="section-tab" onclick="showSection('login-error', this)">로그인 오류</button>
+  <button class="section-tab" onclick="showSection('logout', this)">로그아웃</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 1: 로그인
+═══════════════════════════════════════ -->
+<div id="login" class="page-section visible auth-root" style="padding-top:5rem;">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-logo">
+        <div class="logo-icon">B</div>
+        <span class="logo-text">brix-CMS</span>
+      </div>
+      <p class="card-description">계정에 로그인하세요</p>
+    </div>
+
+    <form class="form" onsubmit="return false;">
+      <div class="field">
+        <label for="login-email">이메일<span class="required">*</span></label>
+        <input type="email" id="login-email" placeholder="name@example.com" value="admin@brix.dev">
+      </div>
+      <div class="field">
+        <label for="login-password">비밀번호<span class="required">*</span></label>
+        <input type="password" id="login-password" placeholder="비밀번호 입력" value="••••••••">
+      </div>
+      <button class="btn btn-default btn-full" type="submit">로그인</button>
+    </form>
+
+    <div class="link-row">
+      계정이 없으신가요?&nbsp;<span class="link" onclick="showSection('register', document.querySelectorAll('.section-tab')[1])">가입하기</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 2: 가입
+═══════════════════════════════════════ -->
+<div id="register" class="page-section auth-root" style="padding-top:5rem;">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-logo">
+        <div class="logo-icon">B</div>
+        <span class="logo-text">brix-CMS</span>
+      </div>
+      <p class="card-description">새 계정을 만드세요</p>
+    </div>
+
+    <form class="form" onsubmit="return false;">
+      <div class="field">
+        <label for="reg-email">이메일<span class="required">*</span></label>
+        <input type="email" id="reg-email" placeholder="name@example.com">
+      </div>
+      <div class="field">
+        <label for="reg-pw">비밀번호<span class="required">*</span></label>
+        <input type="password" id="reg-pw" placeholder="최소 8자 이상" oninput="updateStrength(this.value)">
+        <div class="strength-bar" id="strength-bar">
+          <div class="strength-seg" id="s1"></div>
+          <div class="strength-seg" id="s2"></div>
+          <div class="strength-seg" id="s3"></div>
+          <div class="strength-seg" id="s4"></div>
+        </div>
+        <span class="field-hint">최소 8자 이상 입력하세요</span>
+      </div>
+      <div class="field">
+        <label for="reg-confirm">비밀번호 확인<span class="required">*</span></label>
+        <input type="password" id="reg-confirm" placeholder="비밀번호 재입력">
+      </div>
+      <button class="btn btn-default btn-full" type="submit">가입하기</button>
+    </form>
+
+    <div class="link-row">
+      이미 계정이 있으신가요?&nbsp;<span class="link" onclick="showSection('login', document.querySelectorAll('.section-tab')[0])">로그인</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 3: 로그인 오류 상태
+═══════════════════════════════════════ -->
+<div id="login-error" class="page-section auth-root" style="padding-top:5rem;">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-logo">
+        <div class="logo-icon">B</div>
+        <span class="logo-text">brix-CMS</span>
+      </div>
+      <p class="card-description">계정에 로그인하세요</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div class="alert alert-destructive">
+      <span class="alert-icon">⚠</span>
+      <span>이메일 또는 비밀번호가 올바르지 않습니다.</span>
+    </div>
+
+    <form class="form" onsubmit="return false;">
+      <div class="field">
+        <label for="login-email-err">이메일<span class="required">*</span></label>
+        <input type="email" id="login-email-err" class="error" value="wrong@example.com">
+        <span class="field-error">이메일 형식을 확인하세요</span>
+      </div>
+      <div class="field">
+        <label for="login-pw-err">비밀번호<span class="required">*</span></label>
+        <input type="password" id="login-pw-err" class="error" value="••••">
+        <span class="field-error">비밀번호가 올바르지 않습니다</span>
+      </div>
+      <button class="btn btn-default btn-full btn-loading" type="submit" disabled>
+        <div class="spinner"></div>
+        로그인 중...
+      </button>
+    </form>
+
+    <div class="link-row">
+      계정이 없으신가요?&nbsp;<span class="link">가입하기</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 4: 로그아웃 다이얼로그
+═══════════════════════════════════════ -->
+<div id="logout" class="page-section" style="position:relative;min-height:100vh;">
+  <!-- 뒤 배경 (관리자 화면 hint) -->
+  <div style="min-height:100vh;background:var(--muted);display:flex;align-items:center;justify-content:center;filter:blur(2px);">
+    <div style="text-align:center;color:var(--muted-foreground);font-size:1rem;">
+      관리자 화면 뒤에 표시됩니다
+    </div>
+  </div>
+
+  <!-- Dialog Overlay -->
+  <div class="dialog-overlay" style="position:absolute;inset:0;">
+    <div class="dialog-box">
+      <div class="dialog-title">로그아웃</div>
+      <div class="dialog-desc">
+        정말 로그아웃하시겠습니까?<br>
+        현재 세션이 종료되고 로그인 페이지로 이동합니다.
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-outline">취소</button>
+        <button class="btn btn-destructive">로그아웃</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, tab) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+    if (tab) tab.classList.add('active');
+  }
+
+  function updateStrength(val) {
+    const segs = [document.getElementById('s1'), document.getElementById('s2'),
+                  document.getElementById('s3'), document.getElementById('s4')];
+    segs.forEach(s => { s.className = 'strength-seg'; });
+    const len = val.length;
+    if (len === 0) return;
+    const cls = len < 6 ? 'weak' : len < 8 ? 'medium' : 'filled';
+    const count = len < 4 ? 1 : len < 6 ? 2 : len < 8 ? 3 : 4;
+    for (let i = 0; i < count; i++) segs[i].classList.add(cls);
+  }
+</script>
+</body>
+</html>

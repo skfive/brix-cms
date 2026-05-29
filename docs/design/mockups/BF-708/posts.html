@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>brix-CMS — Posts Mockup (BF-708)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --background: hsl(0 0% 100%);
+      --foreground: hsl(240 10% 3.9%);
+      --card: hsl(0 0% 100%);
+      --primary: hsl(240 5.9% 10%);
+      --primary-foreground: hsl(0 0% 98%);
+      --secondary: hsl(240 4.8% 95.9%);
+      --secondary-foreground: hsl(240 5.9% 10%);
+      --muted: hsl(240 4.8% 95.9%);
+      --muted-foreground: hsl(240 3.8% 46.1%);
+      --accent: hsl(240 4.8% 95.9%);
+      --destructive: hsl(0 84.2% 60.2%);
+      --destructive-foreground: hsl(0 0% 98%);
+      --border: hsl(240 5.9% 90%);
+      --input: hsl(240 5.9% 90%);
+      --ring: hsl(240 5.9% 10%);
+      --radius: 0.5rem;
+      --sidebar-width: 240px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--foreground);
+      background: var(--muted);
+    }
+
+    /* ── Admin Shell ── */
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--background);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-top {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--primary);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary-foreground);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .logo-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--foreground);
+    }
+
+    .sidebar-nav { padding: 0.5rem; flex: 1; }
+    .nav-label {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted-foreground);
+      margin: 0.75rem 0 0.25rem;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.625rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--foreground);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.12s;
+      position: relative;
+    }
+    .nav-item:hover { background: var(--accent); }
+    .nav-item.active {
+      background: var(--accent);
+      font-weight: 600;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 4px; bottom: 4px;
+      width: 2px;
+      background: var(--primary);
+      border-radius: 9999px;
+    }
+    .nav-icon {
+      width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      color: var(--muted-foreground);
+      flex-shrink: 0;
+    }
+    .nav-item.active .nav-icon { color: var(--foreground); }
+
+    .sidebar-bottom {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.375rem 0.5rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+    .user-row:hover { background: var(--accent); }
+    .avatar {
+      width: 28px; height: 28px;
+      background: var(--secondary);
+      border-radius: 9999px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted-foreground);
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-email {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--foreground);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-role {
+      font-size: 0.6875rem;
+      color: var(--muted-foreground);
+    }
+    .logout-btn {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.375rem 0.5rem;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: inherit;
+    }
+    .logout-btn:hover { background: var(--accent); color: var(--foreground); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* ── Header ── */
+    .header {
+      height: 56px;
+      background: var(--background);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 0.75rem;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+    }
+    .breadcrumb-sep { color: var(--border); }
+    .breadcrumb-current { color: var(--foreground); font-weight: 500; }
+
+    /* ── Content ── */
+    .content { padding: 1.5rem; flex: 1; }
+
+    /* ── Page Header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      tracking: tight;
+    }
+    .page-desc {
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      height: 2.25rem;
+      padding: 0 0.875rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.15s, background 0.15s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-default { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .btn-default:hover { opacity: 0.9; }
+    .btn-outline { background: transparent; color: var(--foreground); border-color: var(--border); }
+    .btn-outline:hover { background: var(--accent); }
+    .btn-ghost { background: transparent; color: var(--muted-foreground); border: none; padding: 0 0.5rem; }
+    .btn-ghost:hover { background: var(--accent); color: var(--foreground); }
+    .btn-destructive { background: var(--destructive); color: var(--destructive-foreground); border-color: var(--destructive); }
+    .btn-sm { height: 2rem; padding: 0 0.625rem; font-size: 0.8125rem; }
+    .btn-icon { width: 2rem; height: 2rem; padding: 0; border-radius: var(--radius); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      height: 2.25rem;
+      padding: 0 0.75rem;
+      border: 1px solid var(--input);
+      border-radius: var(--radius);
+      background: var(--background);
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--foreground);
+      outline: none;
+      min-width: 200px;
+    }
+    .search-input:focus { border-color: var(--ring); box-shadow: 0 0 0 2px rgba(24,24,27,0.12); }
+    .select {
+      height: 2.25rem;
+      padding: 0 2rem 0 0.75rem;
+      border: 1px solid var(--input);
+      border-radius: var(--radius);
+      background: var(--background);
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--foreground);
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+    }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      white-space: nowrap;
+      user-select: none;
+    }
+    th.sortable { cursor: pointer; }
+    th.sortable:hover { color: var(--foreground); }
+    .sort-icon { margin-left: 0.25rem; opacity: 0.5; }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: hsl(240 4.8% 97%); }
+    td { padding: 0.875rem 1rem; vertical-align: middle; }
+    .td-title { font-weight: 500; color: var(--foreground); max-width: 240px; }
+    .td-slug {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .td-author { color: var(--muted-foreground); font-size: 0.8125rem; }
+    .td-date { color: var(--muted-foreground); font-size: 0.8125rem; white-space: nowrap; }
+    .td-actions { display: flex; align-items: center; gap: 0.25rem; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+    .badge-draft { background: #F4F4F5; color: #71717A; border-color: #E4E4E7; }
+    .badge-published { background: #DCFCE7; color: #16A34A; border-color: #BBF7D0; }
+    .badge-archived { background: #FEF9C3; color: #CA8A04; border-color: #FDE68A; }
+
+    /* ── Pagination ── */
+    .pagination-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .pagination-info { font-size: 0.8125rem; color: var(--muted-foreground); }
+    .pagination-controls { display: flex; align-items: center; gap: 0.375rem; }
+    .page-btn {
+      height: 2rem; min-width: 2rem;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 0.5rem;
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--background);
+      color: var(--foreground);
+      font-family: inherit;
+    }
+    .page-btn:hover { background: var(--accent); }
+    .page-btn.active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Form Layout (New/Edit) ── */
+    .form-grid { display: flex; flex-direction: column; gap: 1.25rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 0.375rem; }
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--foreground);
+    }
+    label .required { color: var(--destructive); margin-left: 2px; }
+    input[type="text"], textarea {
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--input);
+      background: var(--background);
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--foreground);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--ring);
+      box-shadow: 0 0 0 2px rgba(24,24,27,0.12);
+    }
+    input[type="text"] { height: 2.25rem; }
+    textarea { resize: vertical; min-height: 320px; line-height: 1.6; }
+    .input-with-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .input-with-badge input { flex: 1; }
+    .auto-badge {
+      padding: 0.125rem 0.5rem;
+      background: var(--secondary);
+      color: var(--muted-foreground);
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+    }
+    .field-hint { font-size: 0.75rem; color: var(--muted-foreground); }
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0.5rem;
+    }
+
+    /* ── Separator ── */
+    .sep { height: 1px; background: var(--border); margin: 0; }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    .back-link:hover { color: var(--foreground); }
+
+    /* ── Delete Dialog ── */
+    .dialog-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .dialog-overlay.open { display: flex; }
+    .dialog-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 2px);
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+    .dialog-title { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .dialog-desc { font-size: 0.875rem; color: var(--muted-foreground); margin-bottom: 1.5rem; line-height: 1.6; }
+    .dialog-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 300;
+    }
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      min-width: 280px;
+      max-width: 360px;
+      font-size: 0.875rem;
+    }
+    .toast-success { border-left: 3px solid #16A34A; }
+    .toast-error { border-left: 3px solid var(--destructive); }
+    .toast-title { font-weight: 600; font-size: 0.875rem; }
+    .toast-desc { font-size: 0.8125rem; color: var(--muted-foreground); }
+
+    /* ── Mockup Nav ── */
+    .mockup-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      background: var(--primary);
+      color: var(--primary-foreground);
+      border-radius: 9999px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .section-tab {
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--background);
+      color: var(--muted-foreground);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .section-tab.active { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+    .page-section { display: none; }
+    .page-section.visible { display: flex; }
+  </style>
+</head>
+<body>
+
+<!-- ── Mockup Navigation ── -->
+<div style="position:fixed;top:0.75rem;left:50%;transform:translateX(-50%);z-index:500;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);padding:0.5rem 0.75rem;border-radius:9999px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+  <span class="mockup-badge">🎨 Posts · BF-708</span>
+  <button class="section-tab active" onclick="showSection('list', this)">목록</button>
+  <button class="section-tab" onclick="showSection('new', this)">새 포스트</button>
+  <button class="section-tab" onclick="showSection('edit', this)">편집</button>
+  <button class="section-tab" onclick="showSection('delete-dialog', this)">삭제 다이얼로그</button>
+  <button class="section-tab" onclick="showSection('toast-demo', this)">Toast 알림</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 1: 포스트 목록
+═══════════════════════════════════════ -->
+<div id="list" class="page-section visible" style="min-height:100vh;padding-top:3.5rem;">
+  <div class="shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <a class="logo" href="#">
+          <div class="logo-icon">B</div>
+          <span class="logo-text">brix-CMS</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">메뉴</div>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">◻</span> 대시보드
+        </a>
+        <a class="nav-item active" href="#">
+          <span class="nav-icon">📄</span> 포스트
+        </a>
+        <a class="nav-item" href="#">
+          <span class="nav-icon">📃</span> 페이지
+        </a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-row">
+          <div class="avatar">A</div>
+          <div class="user-info">
+            <div class="user-email">admin@brix.dev</div>
+            <div class="user-role">관리자</div>
+          </div>
+        </div>
+        <button class="logout-btn">↩ 로그아웃</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="header">
+        <div class="breadcrumb">
+          <span>홈</span>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">포스트</span>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">포스트</h1>
+            <p class="page-desc">블로그 포스트를 관리합니다</p>
+          </div>
+          <button class="btn btn-default">+ 새 포스트</button>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <input type="text" class="search-input" placeholder="🔍 제목 검색...">
+          <select class="select">
+            <option value="">모든 상태</option>
+            <option value="DRAFT">임시저장</option>
+            <option value="PUBLISHED">발행됨</option>
+            <option value="ARCHIVED">보관됨</option>
+          </select>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="sortable">제목 <span class="sort-icon">↕</span></th>
+                  <th>슬러그</th>
+                  <th>상태</th>
+                  <th>작성자</th>
+                  <th class="sortable">작성일 <span class="sort-icon">↓</span></th>
+                  <th style="text-align:center;">액션</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-title">shadcn/ui로 구성하는 현대적인 CMS 디자인</td>
+                  <td class="td-slug">shadcn-ui-modern-cms-design</td>
+                  <td><span class="badge badge-published">PUBLISHED</span></td>
+                  <td class="td-author">admin@brix.dev</td>
+                  <td class="td-date">2026-05-28</td>
+                  <td><div class="td-actions" style="justify-content:center;">
+                    <button class="btn btn-ghost btn-icon" title="편집">✏</button>
+                    <button class="btn btn-ghost btn-icon" title="삭제" style="color:var(--destructive);">🗑</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="td-title">NestJS + Prisma 백엔드 연동 가이드</td>
+                  <td class="td-slug">nestjs-prisma-backend-guide</td>
+                  <td><span class="badge badge-draft">DRAFT</span></td>
+                  <td class="td-author">admin@brix.dev</td>
+                  <td class="td-date">2026-05-27</td>
+                  <td><div class="td-actions" style="justify-content:center;">
+                    <button class="btn btn-ghost btn-icon" title="편집">✏</button>
+                    <button class="btn btn-ghost btn-icon" title="삭제" style="color:var(--destructive);">🗑</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="td-title">JWT 인증 흐름 완전 이해하기</td>
+                  <td class="td-slug">jwt-auth-deep-dive</td>
+                  <td><span class="badge badge-published">PUBLISHED</span></td>
+                  <td class="td-author">editor@brix.dev</td>
+                  <td class="td-date">2026-05-25</td>
+                  <td><div class="td-actions" style="justify-content:center;">
+                    <button class="btn btn-ghost btn-icon" title="편집">✏</button>
+                    <button class="btn btn-ghost btn-icon" title="삭제" style="color:var(--destructive);">🗑</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="td-title">React 18 Concurrent Features 실전 활용</td>
+                  <td class="td-slug">react-18-concurrent-features</td>
+                  <td><span class="badge badge-archived">ARCHIVED</span></td>
+                  <td class="td-author">admin@brix.dev</td>
+                  <td class="td-date">2026-05-20</td>
+                  <td><div class="td-actions" style="justify-content:center;">
+                    <button class="btn btn-ghost btn-icon" title="편집">✏</button>
+                    <button class="btn btn-ghost btn-icon" title="삭제" style="color:var(--destructive);">🗑</button>
+                  </div></td>
+                </tr>
+                <tr>
+                  <td class="td-title">TypeScript 5.0 새 기능 살펴보기</td>
+                  <td class="td-slug">typescript-5-new-features</td>
+                  <td><span class="badge badge-draft">DRAFT</span></td>
+                  <td class="td-author">editor@brix.dev</td>
+                  <td class="td-date">2026-05-18</td>
+                  <td><div class="td-actions" style="justify-content:center;">
+                    <button class="btn btn-ghost btn-icon" title="편집">✏</button>
+                    <button class="btn btn-ghost btn-icon" title="삭제" style="color:var(--destructive);">🗑</button>
+                  </div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-row">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <span class="pagination-info">총 43개 중 1-10 표시</span>
+              <select class="select" style="height:1.875rem;font-size:0.8125rem;">
+                <option>10개씩</option>
+                <option>25개씩</option>
+                <option>50개씩</option>
+              </select>
+            </div>
+            <div class="pagination-controls">
+              <button class="page-btn" disabled>←</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn" style="border:none;background:none;cursor:default;color:var(--muted-foreground);">...</button>
+              <button class="page-btn">5</button>
+              <button class="page-btn">→</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 2: 포스트 작성
+═══════════════════════════════════════ -->
+<div id="new" class="page-section" style="min-height:100vh;padding-top:3.5rem;">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-top"><a class="logo" href="#"><div class="logo-icon">B</div><span class="logo-text">brix-CMS</span></a></div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">메뉴</div>
+        <a class="nav-item" href="#">◻ 대시보드</a>
+        <a class="nav-item active" href="#">📄 포스트</a>
+        <a class="nav-item" href="#">📃 페이지</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-row"><div class="avatar">A</div><div class="user-info"><div class="user-email">admin@brix.dev</div><div class="user-role">관리자</div></div></div>
+        <button class="logout-btn">↩ 로그아웃</button>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="header">
+        <div class="breadcrumb">
+          <span>포스트</span><span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">새 포스트</span>
+        </div>
+      </header>
+      <main class="content">
+        <div class="back-link" onclick="showSection('list', document.querySelectorAll('.section-tab')[0])">← 목록으로</div>
+        <div class="page-header" style="margin-bottom:1rem;">
+          <h1 class="page-title">새 포스트</h1>
+        </div>
+
+        <div class="card" style="padding:1.5rem;">
+          <form class="form-grid" onsubmit="return false;">
+            <div class="field">
+              <label for="new-title">제목<span class="required">*</span></label>
+              <input type="text" id="new-title" placeholder="포스트 제목을 입력하세요" value="새로운 포스트 제목">
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="new-slug">슬러그</label>
+                <div class="input-with-badge">
+                  <input type="text" id="new-slug" placeholder="자동 생성" value="새로운-포스트-제목">
+                  <span class="auto-badge">자동생성</span>
+                </div>
+                <span class="field-hint">비워두면 제목으로 자동 생성됩니다</span>
+              </div>
+              <div class="field">
+                <label for="new-status">발행 상태<span class="required">*</span></label>
+                <select class="select" id="new-status" style="height:2.25rem;padding:0 2rem 0 0.75rem;">
+                  <option value="DRAFT" selected>임시저장 (DRAFT)</option>
+                  <option value="PUBLISHED">발행 (PUBLISHED)</option>
+                  <option value="ARCHIVED">보관 (ARCHIVED)</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="new-content">내용</label>
+              <textarea id="new-content" placeholder="포스트 내용을 입력하세요...
+
+Markdown 형식을 지원합니다.
+
+## 예시 제목
+
+본문 내용을 이 곳에 작성합니다."></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-outline" type="button" onclick="showSection('list', document.querySelectorAll('.section-tab')[0])">취소</button>
+              <button class="btn btn-outline" type="button">임시저장</button>
+              <button class="btn btn-default" type="submit">저장하기</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 3: 포스트 편집
+═══════════════════════════════════════ -->
+<div id="edit" class="page-section" style="min-height:100vh;padding-top:3.5rem;">
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-top"><a class="logo" href="#"><div class="logo-icon">B</div><span class="logo-text">brix-CMS</span></a></div>
+      <nav class="sidebar-nav">
+        <div class="nav-label">메뉴</div>
+        <a class="nav-item" href="#">◻ 대시보드</a>
+        <a class="nav-item active" href="#">📄 포스트</a>
+        <a class="nav-item" href="#">📃 페이지</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-row"><div class="avatar">A</div><div class="user-info"><div class="user-email">admin@brix.dev</div><div class="user-role">관리자</div></div></div>
+        <button class="logout-btn">↩ 로그아웃</button>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="header">
+        <div class="breadcrumb">
+          <span>포스트</span><span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">편집</span>
+        </div>
+      </header>
+      <main class="content">
+        <div class="back-link" onclick="showSection('list', document.querySelectorAll('.section-tab')[0])">← 목록으로</div>
+        <div class="page-header" style="margin-bottom:1rem;">
+          <h1 class="page-title">포스트 편집</h1>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="badge badge-published">PUBLISHED</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1.5rem;">
+          <form class="form-grid" onsubmit="return false;">
+            <div class="field">
+              <label for="edit-title">제목<span class="required">*</span></label>
+              <input type="text" id="edit-title" value="shadcn/ui로 구성하는 현대적인 CMS 디자인">
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="edit-slug">슬러그</label>
+                <div class="input-with-badge">
+                  <input type="text" id="edit-slug" value="shadcn-ui-modern-cms-design">
+                  <span class="auto-badge">수동 편집</span>
+                </div>
+                <span class="field-hint">변경 시 기존 URL이 무효화될 수 있습니다</span>
+              </div>
+              <div class="field">
+                <label for="edit-status">발행 상태<span class="required">*</span></label>
+                <select class="select" id="edit-status" style="height:2.25rem;padding:0 2rem 0 0.75rem;">
+                  <option value="DRAFT">임시저장 (DRAFT)</option>
+                  <option value="PUBLISHED" selected>발행 (PUBLISHED)</option>
+                  <option value="ARCHIVED">보관 (ARCHIVED)</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="edit-content">내용</label>
+              <textarea id="edit-content">shadcn/ui는 Radix UI 기반의 접근성 높은 컴포넌트 시스템입니다.
+
+## 주요 특징
+
+- **Zinc 팔레트** 기반 디자인 토큰
+- **Tailwind CSS** 완전 통합
+- 다크 모드 기본 지원
+
+## 사용 방법
+
+```bash
+npx shadcn@latest init
+npx shadcn@latest add button
+```
+
+이렇게 원하는 컴포넌트를 선택적으로 추가할 수 있습니다.</textarea>
+            </div>
+
+            <!-- Meta info -->
+            <div style="display:flex;gap:1.5rem;padding:0.75rem 1rem;background:var(--muted);border-radius:var(--radius);font-size:0.8125rem;color:var(--muted-foreground);">
+              <span>작성자: <strong>admin@brix.dev</strong></span>
+              <span>최초 작성: <strong>2026-05-28</strong></span>
+              <span>마지막 수정: <strong>2026-05-29</strong></span>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-outline btn-destructive" type="button" onclick="showSection('delete-dialog', document.querySelectorAll('.section-tab')[3])" style="margin-right:auto;color:var(--destructive);border-color:var(--destructive);">삭제</button>
+              <button class="btn btn-outline" type="button" onclick="showSection('list', document.querySelectorAll('.section-tab')[0])">취소</button>
+              <button class="btn btn-default" type="submit">변경사항 저장</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 4: 삭제 다이얼로그
+═══════════════════════════════════════ -->
+<div id="delete-dialog" class="page-section" style="min-height:100vh;padding-top:3.5rem;position:relative;">
+  <!-- 뒤 배경 -->
+  <div style="min-height:100vh;background:var(--muted);display:flex;align-items:center;justify-content:center;filter:blur(2px);">
+    <div style="text-align:center;color:var(--muted-foreground);">포스트 목록 화면</div>
+  </div>
+  <!-- Dialog -->
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);">
+    <div class="dialog-box">
+      <div class="dialog-title">포스트 삭제</div>
+      <div class="dialog-desc">
+        포스트 <strong>"shadcn/ui로 구성하는 현대적인 CMS 디자인"</strong>을 삭제합니다.<br>
+        이 작업은 되돌릴 수 없습니다.
+      </div>
+      <div class="dialog-actions">
+        <button class="btn btn-outline" onclick="showSection('list', document.querySelectorAll('.section-tab')[0])">취소</button>
+        <button class="btn btn-destructive">삭제하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SECTION 5: Toast 알림 데모
+═══════════════════════════════════════ -->
+<div id="toast-demo" class="page-section" style="min-height:100vh;padding-top:3.5rem;align-items:flex-start;">
+  <div style="width:100%;padding:2rem;display:flex;flex-direction:column;gap:1.5rem;max-width:600px;margin:0 auto;">
+    <h2 style="font-size:1.25rem;font-weight:600;">Toast 알림 시안</h2>
+
+    <!-- Success -->
+    <div class="toast toast-success">
+      <span style="font-size:1rem;color:#16A34A;flex-shrink:0;">✓</span>
+      <div>
+        <div class="toast-title">포스트가 저장되었습니다</div>
+        <div class="toast-desc">"shadcn/ui로 구성하는..." 포스트가 성공적으로 발행되었습니다.</div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="toast toast-error">
+      <span style="font-size:1rem;color:var(--destructive);flex-shrink:0;">✕</span>
+      <div>
+        <div class="toast-title">저장에 실패했습니다</div>
+        <div class="toast-desc">서버 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="toast" style="border-left:3px solid #CA8A04;">
+      <span style="font-size:1rem;color:#CA8A04;flex-shrink:0;">⚠</span>
+      <div>
+        <div class="toast-title">슬러그 충돌</div>
+        <div class="toast-desc">슬러그 "nestjs-guide"가 이미 사용 중입니다. 다른 슬러그를 입력하세요.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSection(id, tab) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('visible'));
+    document.getElementById(id).classList.add('visible');
+    document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+    if (tab) tab.classList.add('active');
+  }
+</script>
+</body>
+</html>

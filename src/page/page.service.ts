@@ -16,7 +16,7 @@ export interface PageResponse {
   title: string;
   slug: string;
   content: string | null;
-  status: string;
+  status: PublishStatus;
   author: { id: number; email: string; role: string };
   createdAt: Date;
   updatedAt: Date;
@@ -34,7 +34,7 @@ function toPageResponse(page: PageWithAuthor): PageResponse {
     title: page.title,
     slug: page.slug,
     content: page.content,
-    status: page.status,
+    status: page.status as PublishStatus,
     author: {
       id: page.author.id,
       email: page.author.email,

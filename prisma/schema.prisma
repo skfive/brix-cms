@@ -15,3 +15,13 @@ model HealthLog {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 }
+
+// BF-683: 사용자 인증 모델
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password_hash String
+  role          String   @default("user")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

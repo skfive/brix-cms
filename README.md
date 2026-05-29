@@ -1,6 +1,6 @@
 # brix-cms
 
-NestJS 기반 블로그 CMS 백엔드 — Prisma/SQLite + JWT 인증 + Docker 배포.
+NestJS 기반 블로그 CMS 백엔드 + Next.js 프론트엔드 — Prisma/SQLite + JWT 인증 + shadcn/ui + Docker 배포.
 
 ---
 
@@ -10,9 +10,11 @@ NestJS 기반 블로그 CMS 백엔드 — Prisma/SQLite + JWT 인증 + Docker �
 2. [로컬 개발 환경](#2-로컬-개발-환경)
 3. [환경 변수](#3-환경-변수)
 4. [개발 명령어](#4-개발-명령어)
-5. [API 엔드포인트 개요](#5-api-엔드포인트-개요)
-6. [알려진 문제 및 해결 방법](#6-알려진-문제-및-해결-방법)
-7. [운영자 체크리스트](#7-운영자-체크리스트)
+5. [프론트엔드 (Next.js + shadcn/ui)](#5-프론트엔드-nextjs--shadcnui)
+6. [데모 계정 & 시드](#6-데모-계정--시드)
+7. [API 엔드포인트 개요](#7-api-엔드포인트-개요)
+8. [알려진 문제 및 해결 방법](#8-알려진-문제-및-해결-방법)
+9. [운영자 체크리스트](#9-운영자-체크리스트)
 
 ---
 
@@ -108,7 +110,78 @@ pnpm prisma studio
 
 ---
 
-## 5. API 엔드포인트 개요
+## 5. 프론트엔드 (Next.js + shadcn/ui)
+
+brix-CMS 관리자 UI 는 Next.js 14+ (App Router) + shadcn/ui (Zinc 테마) 로 구성됩니다.
+
+### 화면 목록
+
+| 경로 | 화면 | 인증 |
+|------|------|------|
+| `/login` | 로그인 | 퍼블릭 |
+| `/register` | 가입 | 퍼블릭 |
+| `/dashboard` | 대시보드 | 필요 |
+| `/posts` | 포스트 목록 | 필요 |
+| `/posts/new` | 포스트 작성 | 필요 |
+| `/posts/[id]/edit` | 포스트 편집 | 필요 |
+| `/pages` | 페이지 목록 | 필요 |
+| `/pages/new` | 페이지 작성 | 필요 |
+| `/pages/[id]/edit` | 페이지 편집 | 필요 |
+
+### 프론트엔드 개발 서버 시작
+
+```bash
+# 의존성 설치 (최초 1회)
+pnpm install
+
+# Next.js 개발 서버 (포트 3001)
+pnpm dev:next
+
+# NestJS 백엔드와 동시에 실행 시
+pnpm start:dev   # 백엔드 포트 3000
+pnpm dev:next    # 프론트엔드 포트 3001
+```
+
+### 기술 스택
+
+| 역할 | 기술 |
+|------|------|
+| 프레임워크 | Next.js 14+ (App Router) |
+| UI 컴포넌트 | shadcn/ui (Zinc 테마) |
+| 스타일 | Tailwind CSS v3 |
+| 폼 검증 | react-hook-form + zod |
+| 아이콘 | lucide-react |
+
+---
+
+## 6. 데모 계정 & 시드
+
+e2e/API 테스트용 데모 계정은 시드 스크립트로 생성합니다.
+
+### 데모 계정 정보
+
+| 항목 | 값 |
+|------|-----|
+| **Email** | `demo@brix-cms.local` |
+| **Password** | `Demo1234!` |
+| **Role** | `user` |
+
+### 시드 실행
+
+```bash
+# DB 마이그레이션 후 시드 실행
+pnpm prisma migrate dev
+pnpm seed
+
+# 또는 prisma db seed (package.json prisma.seed 설정 사용)
+pnpm prisma db seed
+```
+
+> 시드는 멱등합니다 — 동일한 이메일이 이미 존재하면 upsert 로 갱신합니다.
+
+---
+
+## 7. API 엔드포인트 개요
 
 | 메서드 | 경로 | 인증 | 설명 |
 |--------|------|------|------|
@@ -127,7 +200,7 @@ pnpm prisma studio
 
 ---
 
-## 6. 알려진 문제 및 해결 방법
+## 8. 알려진 문제 및 해결 방법
 
 ### ❌ `docker compose up` 시 Prisma OpenSSL 에러
 
@@ -168,7 +241,7 @@ cp .env.example .env
 
 ---
 
-## 7. 운영자 체크리스트
+## 9. 운영자 체크리스트
 
 Docker Compose 로 서비스를 처음 기동할 때 순서대로 확인하세요.
 
@@ -198,6 +271,9 @@ Docker Compose 로 서비스를 처음 기동할 때 순서대로 확인하세�
 
 | BF 티켓 | 내용 |
 |---------|------|
+| BF-707 | 빌드 타입 에러 수정, ESLint/Prettier 도입, Prisma Alpine OpenSSL 에러 수정 |
+| BF-711 | .gitignore 정리, shadcn/ui 도입, Next.js 프론트엔드 전체 페이지 구현, demo 계정 시드 |
+| BF-708 | shadcn/ui 기반 프론트엔드 디자인 명세 (designer) |
 | BF-707 | 빌드 타입 에러 수정, ESLint/Prettier 도입, Prisma Alpine OpenSSL 에러 수정 |
 | BF-705 | Docker Compose 환경 구성 + pnpm 마이그레이션 |
 | BF-701 | CommentModule E2E 회귀 가드 |

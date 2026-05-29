@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "app",
+    "components",
+    "lib",
+    "next.config.ts",
+    "tailwind.config.ts",
+    "postcss.config.js",
+    "scripts",
+    "prisma/seed.ts"
+  ]
+}

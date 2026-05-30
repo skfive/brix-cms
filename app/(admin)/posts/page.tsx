@@ -1,8 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Pencil, Trash2, Plus } from 'lucide-react'
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -33,6 +40,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { DataTablePagination } from '@/components/data-table-pagination'
 import { apiFetch } from '@/lib/api'
 
 interface Post {
@@ -44,7 +52,7 @@ interface Post {
   createdAt: string
 }
 
-/** 상태 배지 variant 맵 — 명세 §5.3 참조 */
+/** 상태 배지 variant 맵 — 명세 §7.5 참조 */
 const STATUS_VARIANT = {
   DRAFT: 'draft',
   PUBLISHED: 'published',
@@ -57,9 +65,17 @@ const STATUS_LABEL = {
   ARCHIVED: '보관됨',
 }
 
+type SortColumn = 'title' | 'status' | 'createdAt'
+type SortDir = 'asc' | 'desc' | null
+
+/** 정렬 토글 순환: null → asc → desc → null (명세 §8.5) */
+function nextSortDir(cur: SortDir): SortDir {
+  return cur === null ? 'asc' : cur === 'asc' ? 'desc' : null
+}
+
 /**
  * 포스트 목록 페이지 (`/posts`)
- * 명세 §6.4 포스트 목록 참조 — DataTable + 상태 필터 + 검색
+ * 명세 §7.4 DataTable — 정렬 토글 + 페이지네이션 + 상태 필터 + 검색
  */
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([])
@@ -68,6 +84,12 @@ export default function PostsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [sort, setSort] = useState<{ column: SortColumn; dir: SortDir }>({
+    column: 'createdAt',
+    dir: 'desc',
+  })
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
   const fetchPosts = async () => {
     setIsLoading(true)
@@ -98,13 +120,53 @@ export default function PostsPage() {
     }
   }
 
-  const filtered = posts.filter((p) => {
-    const matchStatus = statusFilter === 'ALL' || p.status === statusFilter
-    const matchSearch =
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.slug.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchStatus && matchSearch
-  })
+  const toggleSort = (column: SortColumn) => {
+    setSort((prev) =>
+      prev.column === column
+        ? { column, dir: nextSortDir(prev.dir) }
+        : { column, dir: 'asc' },
+    )
+    setPage(1)
+  }
+
+  const filtered = useMemo(
+    () =>
+      posts.filter((p) => {
+        const matchStatus = statusFilter === 'ALL' || p.status === statusFilter
+        const matchSearch =
+          p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.slug.toLowerCase().includes(searchQuery.toLowerCase())
+        return matchStatus && matchSearch
+      }),
+    [posts, statusFilter, searchQuery],
+  )
+
+  const sorted = useMemo(() => {
+    if (!sort.dir) return filtered
+    const m = sort.dir === 'asc' ? 1 : -1
+    return [...filtered].sort((a, b) => {
+      const diff =
+        sort.column === 'createdAt'
+          ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          : String(a[sort.column]).localeCompare(String(b[sort.column]), 'ko')
+      return diff * m
+    })
+  }, [filtered, sort])
+
+  const total = sorted.length
+  const pageCount = Math.max(1, Math.ceil(total / pageSize))
+  const currentPage = Math.min(page, pageCount)
+  const paged = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
+  const sortIcon = (column: SortColumn) => {
+    if (sort.column !== column || sort.dir === null)
+      return <ArrowUpDown className="h-3.5 w-3.5" />
+    return sort.dir === 'asc' ? (
+      <ArrowUp className="h-3.5 w-3.5" />
+    ) : (
+      <ArrowDown className="h-3.5 w-3.5" />
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -127,7 +189,13 @@ export default function PostsPage() {
 
       {/* 필터 */}
       <div className="flex gap-3">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => {
+            setStatusFilter(v)
+            setPage(1)
+          }}
+        >
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="상태 필터" />
           </SelectTrigger>
@@ -141,7 +209,10 @@ export default function PostsPage() {
         <Input
           placeholder="제목 또는 슬러그 검색..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            setPage(1)
+          }}
           className="max-w-xs"
         />
       </div>
@@ -151,11 +222,35 @@ export default function PostsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>제목</TableHead>
+              <TableHead>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 text-xs uppercase text-muted-foreground hover:text-foreground"
+                  onClick={() => toggleSort('title')}
+                >
+                  제목 {sortIcon('title')}
+                </button>
+              </TableHead>
               <TableHead className="w-[160px]">슬러그</TableHead>
-              <TableHead className="w-[120px] text-center">상태</TableHead>
+              <TableHead className="w-[120px] text-center">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 text-xs uppercase text-muted-foreground hover:text-foreground"
+                  onClick={() => toggleSort('status')}
+                >
+                  상태 {sortIcon('status')}
+                </button>
+              </TableHead>
               <TableHead className="w-[180px]">작성자</TableHead>
-              <TableHead className="w-[140px]">작성일</TableHead>
+              <TableHead className="w-[140px]">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 text-xs uppercase text-muted-foreground hover:text-foreground"
+                  onClick={() => toggleSort('createdAt')}
+                >
+                  작성일 {sortIcon('createdAt')}
+                </button>
+              </TableHead>
               <TableHead className="w-[100px] text-center">액션</TableHead>
             </TableRow>
           </TableHeader>
@@ -166,17 +261,17 @@ export default function PostsPage() {
                   불러오는 중...
                 </TableCell>
               </TableRow>
-            ) : filtered.length === 0 ? (
+            ) : paged.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   포스트가 없습니다.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((post) => (
+              paged.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="font-medium">{post.title}</TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{post.slug}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs font-mono">{post.slug}</TableCell>
                   <TableCell className="text-center">
                     <Badge variant={STATUS_VARIANT[post.status]}>
                       {STATUS_LABEL[post.status]}
@@ -208,9 +303,21 @@ export default function PostsPage() {
             )}
           </TableBody>
         </Table>
+        {!isLoading && (
+          <DataTablePagination
+            page={currentPage}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size)
+              setPage(1)
+            }}
+          />
+        )}
       </div>
 
-      {/* 삭제 확인 다이얼로그 — 명세 §5.6 참조 */}
+      {/* 삭제 확인 다이얼로그 — 명세 §7.8 참조 */}
       <AlertDialog open={deleteId !== null} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

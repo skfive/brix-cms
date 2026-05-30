@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>brix-CMS · 다크 모드 셸 (BF-716)</title>
+  <style>
+    /* ── shadcn/ui Zinc .dark 토큰 (cms-dark-shadcn-BF-716.md §2) ── */
+    :root {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --secondary: 240 3.7% 15.9%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+      --radius: 0.5rem;
+
+      --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+      --space-4: 16px; --space-6: 24px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: hsl(var(--card));
+      border-right: 1px solid hsl(var(--border));
+      display: flex; flex-direction: column;
+      padding: var(--space-4);
+    }
+    .logo {
+      display: flex; align-items: center; gap: var(--space-2);
+      font-weight: 700; font-size: 16px; letter-spacing: -0.01em;
+      padding: var(--space-2) var(--space-2) var(--space-6);
+    }
+    .logo .mark {
+      width: 28px; height: 28px; border-radius: var(--radius);
+      background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+      display: grid; place-items: center; font-size: 15px;
+    }
+    .nav-group-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+      color: hsl(var(--muted-foreground));
+      padding: var(--space-2) var(--space-2) var(--space-1);
+    }
+    .nav-item {
+      position: relative;
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      margin-bottom: 2px;
+      border-radius: calc(var(--radius) - 2px);
+      color: hsl(var(--muted-foreground));
+      font-weight: 500; cursor: pointer;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .nav-item.active { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .nav-item.active::before {
+      content: ""; position: absolute; left: 0; top: 6px; bottom: 6px;
+      width: 2px; border-radius: 2px; background: hsl(var(--primary));
+    }
+    .nav-item .icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .sidebar-spacer { flex: 1; }
+    .user-box {
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-top: 1px solid hsl(var(--border));
+      margin-top: var(--space-4);
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 9999px;
+      background: hsl(var(--secondary)); color: hsl(var(--foreground));
+      display: grid; place-items: center; font-size: 12px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .user-meta { line-height: 1.2; overflow: hidden; }
+    .user-meta .name { font-weight: 500; font-size: 13px; }
+    .user-meta .email { font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .logout {
+      display: flex; align-items: center; gap: var(--space-3);
+      padding: var(--space-2) var(--space-3); margin-top: var(--space-2);
+      color: hsl(var(--muted-foreground)); cursor: pointer;
+      border-radius: calc(var(--radius) - 2px); font-weight: 500;
+    }
+    .logout:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+
+    /* ── Main ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .header {
+      height: 56px; flex-shrink: 0;
+      border-bottom: 1px solid hsl(var(--border));
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--space-6);
+    }
+    .header h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+    .header-right { display: flex; align-items: center; gap: var(--space-4); }
+    .search {
+      position: relative; width: 256px;
+    }
+    .search input {
+      width: 100%; height: 36px;
+      background: hsl(var(--background));
+      border: 1px solid hsl(var(--input));
+      border-radius: calc(var(--radius) - 2px);
+      color: hsl(var(--foreground));
+      padding: 0 var(--space-3) 0 34px;
+      font-size: 14px; font-family: inherit;
+    }
+    .search input::placeholder { color: hsl(var(--muted-foreground)); }
+    .search input:focus { outline: none; box-shadow: 0 0 0 2px hsl(var(--ring)); }
+    .search .s-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; color: hsl(var(--muted-foreground));
+    }
+
+    .body { flex: 1; padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); }
+
+    /* ── 통계 카드 ── */
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4);
+    }
+    .stat-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      padding: var(--space-4);
+    }
+    .stat-top { display: flex; align-items: center; justify-content: space-between; }
+    .stat-label { font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .stat-top .icon { width: 16px; height: 16px; color: hsl(var(--muted-foreground)); }
+    .stat-value { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-top: var(--space-2); }
+    .stat-delta { font-size: 12px; margin-top: var(--space-1); }
+    .delta-up { color: #4ade80; }
+    .delta-down { color: #f87171; }
+    .delta-neutral { color: hsl(var(--muted-foreground)); }
+
+    /* ── 데이터 테이블 ── */
+    .table-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-4);
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    .table-head h2 { font-size: 18px; font-weight: 600; }
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      height: 36px; padding: 0 var(--space-4);
+      border-radius: calc(var(--radius) - 2px);
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      border: 1px solid transparent; font-family: inherit;
+    }
+    .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn .icon { width: 16px; height: 16px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+      color: hsl(var(--muted-foreground));
+      background: hsl(var(--muted) / 0.5);
+      border-bottom: 1px solid hsl(var(--border));
+      font-weight: 500;
+    }
+    .sort-btn {
+      display: inline-flex; align-items: center; gap: var(--space-1);
+      background: none; border: none; cursor: pointer; font: inherit;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em;
+      color: hsl(var(--muted-foreground)); padding: 0;
+    }
+    .sort-btn.active { color: hsl(var(--foreground)); }
+    .sort-btn .icon { width: 14px; height: 14px; }
+    tbody td {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid hsl(var(--border));
+      font-size: 14px;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: hsl(var(--muted) / 0.4); }
+    .cell-title { font-weight: 500; color: hsl(var(--foreground)); }
+    .cell-slug { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: hsl(var(--muted-foreground)); }
+    .cell-muted { color: hsl(var(--muted-foreground)); }
+    .col-center { text-align: center; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: var(--space-1);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 2px var(--space-2);
+      font-size: 12px; font-weight: 500;
+    }
+    .badge .dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; }
+    .badge-draft { background: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; }
+    .badge-published { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.30); }
+    .badge-archived { background: rgba(234,179,8,.15); color: #facc15; border: 1px solid rgba(234,179,8,.30); }
+
+    .row-action {
+      width: 28px; height: 28px; border-radius: calc(var(--radius) - 4px);
+      display: inline-grid; place-items: center; cursor: pointer;
+      color: hsl(var(--muted-foreground)); border: none; background: none;
+    }
+    .row-action:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .row-action .icon { width: 16px; height: 16px; }
+
+    /* ── 페이지네이션 ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid hsl(var(--border));
+    }
+    .page-info { font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .page-controls { display: flex; align-items: center; gap: var(--space-2); }
+    .page-size {
+      height: 32px; background: hsl(var(--background));
+      border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px);
+      color: hsl(var(--foreground)); padding: 0 var(--space-2); font: inherit; font-size: 13px;
+    }
+    .pager { display: flex; align-items: center; gap: 2px; }
+    .pager button {
+      min-width: 32px; height: 32px; padding: 0 var(--space-2);
+      border-radius: calc(var(--radius) - 2px);
+      background: none; border: none; cursor: pointer; font: inherit; font-size: 13px;
+      color: hsl(var(--muted-foreground)); display: inline-grid; place-items: center;
+    }
+    .pager button:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .pager button.current { background: hsl(var(--accent)); color: hsl(var(--foreground)); font-weight: 600; }
+    .pager .icon { width: 16px; height: 16px; }
+
+    .caption-note {
+      font-size: 12px; color: hsl(var(--muted-foreground));
+      border: 1px dashed hsl(var(--border)); border-radius: var(--radius);
+      padding: var(--space-3) var(--space-4);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="mark">◆</span>
+        <span>brix-CMS</span>
+      </div>
+
+      <div class="nav-group-label">메뉴</div>
+      <a class="nav-item active">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        대시보드
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+        포스트
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        페이지
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+        미디어
+      </a>
+      <a class="nav-item">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        설정
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <div class="user-box">
+        <span class="avatar">AD</span>
+        <div class="user-meta">
+          <div class="name">Admin</div>
+          <div class="email">admin@brix.dev</div>
+        </div>
+      </div>
+      <div class="logout">
+        <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+        로그아웃
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <div class="main">
+      <header class="header">
+        <h1>대시보드</h1>
+        <div class="header-right">
+          <div class="search">
+            <svg class="s-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" placeholder="콘텐츠 검색…" />
+          </div>
+          <span class="avatar">AD</span>
+        </div>
+      </header>
+
+      <div class="body">
+        <!-- 통계 카드 -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">전체 포스트</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </div>
+            <div class="stat-value">128</div>
+            <div class="stat-delta delta-up">+12 이번 주</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">발행됨</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <div class="stat-value">86</div>
+            <div class="stat-delta delta-up">+5 이번 주</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">임시저장</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </div>
+            <div class="stat-value">34</div>
+            <div class="stat-delta delta-neutral">변동 없음</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">보관됨</span>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/></svg>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-delta delta-down">-2 이번 주</div>
+          </div>
+        </div>
+
+        <!-- 데이터 테이블 -->
+        <div class="table-card">
+          <div class="table-head">
+            <h2>최근 포스트</h2>
+            <button class="btn btn-primary">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></svg>
+              새 포스트
+            </button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <button class="sort-btn active">제목
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                  </button>
+                </th>
+                <th style="width:180px">슬러그</th>
+                <th class="col-center" style="width:120px">
+                  <button class="sort-btn">상태
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                  </button>
+                </th>
+                <th style="width:160px">작성자</th>
+                <th style="width:140px">
+                  <button class="sort-btn">수정일
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg>
+                  </button>
+                </th>
+                <th class="col-center" style="width:64px">액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-title">Next.js 14 App Router 마이그레이션 가이드</td>
+                <td class="cell-slug">nextjs-14-app-router</td>
+                <td class="col-center"><span class="badge badge-published"><span class="dot"></span>PUBLISHED</span></td>
+                <td class="cell-muted">admin@brix.dev</td>
+                <td class="cell-muted">2026-05-28</td>
+                <td class="col-center"><button class="row-action"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+              </tr>
+              <tr>
+                <td class="cell-title">shadcn/ui 다크 모드 디자인 토큰 정리</td>
+                <td class="cell-slug">shadcn-dark-tokens</td>
+                <td class="col-center"><span class="badge badge-draft"><span class="dot"></span>DRAFT</span></td>
+                <td class="cell-muted">editor@brix.dev</td>
+                <td class="cell-muted">2026-05-27</td>
+                <td class="col-center"><button class="row-action"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+              </tr>
+              <tr>
+                <td class="cell-title">콘텐츠 SEO 최적화 체크리스트</td>
+                <td class="cell-slug">content-seo-checklist</td>
+                <td class="col-center"><span class="badge badge-published"><span class="dot"></span>PUBLISHED</span></td>
+                <td class="cell-muted">admin@brix.dev</td>
+                <td class="cell-muted">2026-05-25</td>
+                <td class="col-center"><button class="row-action"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+              </tr>
+              <tr>
+                <td class="cell-title">2025 연간 리포트 (보관)</td>
+                <td class="cell-slug">2025-annual-report</td>
+                <td class="col-center"><span class="badge badge-archived"><span class="dot"></span>ARCHIVED</span></td>
+                <td class="cell-muted">editor@brix.dev</td>
+                <td class="cell-muted">2026-01-12</td>
+                <td class="col-center"><button class="row-action"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+              </tr>
+              <tr>
+                <td class="cell-title">팀 온보딩 매뉴얼 초안</td>
+                <td class="cell-slug">team-onboarding-draft</td>
+                <td class="col-center"><span class="badge badge-draft"><span class="dot"></span>DRAFT</span></td>
+                <td class="cell-muted">admin@brix.dev</td>
+                <td class="cell-muted">2026-05-22</td>
+                <td class="col-center"><button class="row-action"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 페이지네이션 -->
+          <div class="pagination">
+            <span class="page-info">1–5 / 전체 43</span>
+            <div class="page-controls">
+              <select class="page-size">
+                <option>10 / 페이지</option>
+                <option>25 / 페이지</option>
+                <option>50 / 페이지</option>
+              </select>
+              <div class="pager">
+                <button aria-label="이전"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                <button class="current">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+                <button aria-label="다음"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="caption-note">
+          ※ mockup — 정적 시각화. 정렬 토글(제목 = 오름차순 활성, 나머지는 중립 <strong>ArrowUpDown</strong>) ·
+          행 hover · 페이지네이션 · 다크 토큰(Zinc-950 배경)이 명세 §2~§7 기준으로 표현됨.
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

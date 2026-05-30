@@ -20,6 +20,8 @@
     "test": "jest --forceExit --passWithNoTests",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage --forceExit",
+    "test:e2e": "jest --config test/jest-e2e.json --forceExit",
+    "test:api": "jest --config test/jest-e2e.json --forceExit --testPathPattern=bf-713-demo-account",
     "verify": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
     "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
   },

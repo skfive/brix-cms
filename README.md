@@ -15,6 +15,7 @@ NestJS 기반 블로그 CMS 백엔드 + Next.js 프론트엔드 — Prisma/SQLit
 7. [API 엔드포인트 개요](#7-api-엔드포인트-개요)
 8. [알려진 문제 및 해결 방법](#8-알려진-문제-및-해결-방법)
 9. [운영자 체크리스트](#9-운영자-체크리스트)
+10. [테스트 실행 가이드](#10-테스트-실행-가이드)
 
 ---
 
@@ -267,10 +268,49 @@ Docker Compose 로 서비스를 처음 기동할 때 순서대로 확인하세�
 
 ---
 
+## 10. 테스트 실행 가이드
+
+> **사전 조건**: `pnpm install` 완료 + `.env` 파일 생성 (`JWT_SECRET` 설정 필요)
+
+### 단위 / 통합 테스트 (NestJS 서비스·컨트롤러)
+
+```bash
+pnpm test
+```
+
+### E2E 테스트 전체 실행
+
+```bash
+pnpm test:e2e
+```
+
+모든 `test/*.e2e-spec.ts` 파일을 실행합니다.
+테스트별 격리된 SQLite DB (`/tmp/brix-test-*.db`)를 사용하므로 운영 DB 에 영향을 주지 않습니다.
+
+### API 통합 테스트 (demo 계정 인증 흐름 포함)
+
+```bash
+pnpm test:api
+```
+
+BF-713 기준 E2E 테스트를 실행합니다:
+- 가입→로그인→post 작성→로그아웃 전체 시나리오
+- `demo@brix-cms.local` / `Demo1234!` 자격증명으로 posts/pages/comments API 전체 커버
+- 모든 보호 엔드포인트의 401 인증 실패 케이스 커버
+
+### 테스트 커버리지 리포트
+
+```bash
+pnpm test:cov
+```
+
+---
+
 ## 변경 이력
 
 | BF 티켓 | 내용 |
 |---------|------|
+| BF-713 | E2E + API 회귀 가드 — 가입/로그인/로그아웃/post/pages + demo 계정 |
 | BF-707 | 빌드 타입 에러 수정, ESLint/Prettier 도입, Prisma Alpine OpenSSL 에러 수정 |
 | BF-711 | .gitignore 정리, shadcn/ui 도입, Next.js 프론트엔드 전체 페이지 구현, demo 계정 시드 |
 | BF-708 | shadcn/ui 기반 프론트엔드 디자인 명세 (designer) |

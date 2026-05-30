@@ -11,9 +11,9 @@ const badgeVariants = cva(
         secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
         destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
         outline: 'text-foreground',
-        draft: 'bg-zinc-100 text-zinc-500 border border-zinc-200',
-        published: 'bg-green-100 text-green-700 border border-green-200',
-        archived: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+        draft: 'bg-zinc-800 text-zinc-400 border border-zinc-700',
+        published: 'bg-green-500/15 text-green-400 border border-green-500/30',
+        archived: 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30',
       },
     },
     defaultVariants: {

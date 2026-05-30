@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { LayoutDashboard, FileText, File, LogOut } from 'lucide-react'
+import { LayoutDashboard, FileText, File, LogOut, Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import {
   AlertDialog,
@@ -26,6 +27,14 @@ const NAV_ITEMS = [
   { href: '/posts', label: '포스트', icon: FileText },
   { href: '/pages', label: '페이지', icon: File },
 ]
+
+/** pathname → 헤더에 표시할 현재 섹션 타이틀 (명세 §7.2) */
+function resolvePageTitle(pathname: string): string {
+  const match = NAV_ITEMS.find(
+    (item) => pathname === item.href || pathname.startsWith(item.href + '/'),
+  )
+  return match?.label ?? 'brix-CMS'
+}
 
 /**
  * Admin Shell — 사이드바(240px) + 메인 콘텐츠 레이아웃
@@ -107,6 +116,29 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Header — 56px / border-b / 좌측 타이틀 · 우측 검색+아바타 (명세 §7.2) */}
+        <header className="h-14 flex-shrink-0 border-b flex items-center justify-between px-6">
+          <h2 className="text-base font-semibold tracking-tight">
+            {resolvePageTitle(pathname)}
+          </h2>
+          <div className="flex items-center gap-3">
+            <div className="relative hidden sm:block">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="검색..."
+                className="w-64 pl-8"
+                aria-label="검색"
+              />
+            </div>
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground text-xs font-medium"
+              aria-label="사용자"
+            >
+              A
+            </div>
+          </div>
+        </header>
         <main className="flex-1 p-6 space-y-6">{children}</main>
       </div>
     </div>

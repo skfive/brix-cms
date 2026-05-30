@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>brix-CMS · 편집 폼 + 삭제 다이얼로그 (BF-716)</title>
+  <style>
+    /* ── shadcn/ui Zinc .dark 토큰 (cms-dark-shadcn-BF-716.md §2) ── */
+    :root {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --popover: 240 10% 3.9%;
+      --secondary: 240 3.7% 15.9%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+      --radius: 0.5rem;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: hsl(var(--background));
+      color: hsl(var(--foreground));
+      font-size: 14px; line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding: var(--space-6);
+    }
+    .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-6); }
+
+    /* 페이지 헤더 */
+    .page-head { display: flex; align-items: center; gap: var(--space-3); }
+    .back {
+      display: inline-grid; place-items: center; width: 36px; height: 36px;
+      border: 1px solid hsl(var(--border)); border-radius: calc(var(--radius) - 2px);
+      color: hsl(var(--muted-foreground)); cursor: pointer; background: none;
+    }
+    .back:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .back .icon { width: 16px; height: 16px; }
+    .page-head h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+
+    /* 폼 카드 */
+    .card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+    }
+    .card-body { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+    .field { display: flex; flex-direction: column; gap: var(--space-2); }
+    .label { font-size: 14px; font-weight: 500; }
+    .label .req { color: #f87171; margin-left: 2px; }
+    .helper { font-size: 12px; color: hsl(var(--muted-foreground)); }
+    .err { font-size: 12px; color: #f87171; }
+
+    .input, .textarea, .select {
+      width: 100%;
+      background: hsl(var(--background));
+      border: 1px solid hsl(var(--input));
+      border-radius: calc(var(--radius) - 2px);
+      color: hsl(var(--foreground));
+      padding: var(--space-2) var(--space-3);
+      font: inherit; font-size: 14px;
+    }
+    .input::placeholder, .textarea::placeholder { color: hsl(var(--muted-foreground)); }
+    .input:focus, .textarea:focus, .select:focus { outline: none; box-shadow: 0 0 0 2px hsl(var(--ring)); }
+    .input.mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+    .textarea { resize: vertical; }
+    .textarea.sm { min-height: 96px; }
+    .textarea.lg { min-height: 320px; }
+    .input.is-error { border-color: hsl(var(--destructive)); }
+
+    .field-row { display: grid; grid-template-columns: 1fr 200px; gap: var(--space-4); }
+    .slug-wrap { position: relative; display: flex; align-items: center; gap: var(--space-2); }
+    .auto-badge {
+      display: inline-flex; align-items: center;
+      border-radius: calc(var(--radius) - 2px);
+      padding: 2px var(--space-2); font-size: 12px; font-weight: 500;
+      background: hsl(var(--secondary)); color: hsl(var(--muted-foreground));
+      border: 1px solid hsl(var(--border)); white-space: nowrap;
+    }
+
+    /* 액션 바 */
+    .action-bar {
+      border-top: 1px solid hsl(var(--border));
+      padding: var(--space-4) var(--space-6);
+      display: flex; justify-content: flex-end; gap: var(--space-2);
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      height: 36px; padding: 0 var(--space-4);
+      border-radius: calc(var(--radius) - 2px);
+      font: inherit; font-size: 14px; font-weight: 500; cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn .icon { width: 16px; height: 16px; }
+    .btn-ghost { background: none; color: hsl(var(--muted-foreground)); }
+    .btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
+    .btn-outline { background: transparent; border-color: hsl(var(--input)); color: hsl(var(--foreground)); }
+    .btn-outline:hover { background: hsl(var(--accent)); }
+    .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+    .btn-destructive { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); }
+
+    .section-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+      color: hsl(var(--muted-foreground)); margin-bottom: var(--space-2);
+    }
+
+    /* ── AlertDialog (오버레이) ── */
+    .dialog-zone {
+      position: relative;
+      border: 1px dashed hsl(var(--border));
+      border-radius: var(--radius);
+      min-height: 320px;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(45deg, hsl(var(--muted)/0.25) 0 12px, transparent 12px 24px);
+    }
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.80);
+      display: grid; place-items: center;
+      padding: var(--space-6);
+    }
+    .dialog {
+      width: 100%; max-width: 420px;
+      background: hsl(var(--popover));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 16px 48px rgba(0,0,0,.6);
+      padding: var(--space-6);
+      display: flex; flex-direction: column; gap: var(--space-4);
+    }
+    .dialog-icon {
+      width: 40px; height: 40px; border-radius: 9999px;
+      display: grid; place-items: center;
+      background: rgba(127,29,29,.25); color: #f87171;
+    }
+    .dialog-icon .icon { width: 20px; height: 20px; }
+    .dialog h3 { font-size: 18px; font-weight: 600; }
+    .dialog p { font-size: 14px; color: hsl(var(--muted-foreground)); }
+    .dialog .quote { color: hsl(var(--foreground)); font-weight: 500; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- ── 페이지 헤더 ── -->
+    <div class="page-head">
+      <button class="back" aria-label="목록으로">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h1>포스트 편집</h1>
+    </div>
+
+    <!-- ── 콘텐츠 편집 폼 카드 ── -->
+    <div class="card">
+      <div class="card-body">
+        <div class="field">
+          <label class="label">제목<span class="req">*</span></label>
+          <input class="input" type="text" value="shadcn/ui 다크 모드 디자인 토큰 정리" />
+          <span class="helper">1–200자. 목록·검색에 노출되는 대표 제목입니다.</span>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="label">슬러그</label>
+            <div class="slug-wrap">
+              <input class="input mono" type="text" value="shadcn-dark-tokens" />
+              <span class="auto-badge">자동생성</span>
+            </div>
+            <span class="helper">제목에서 자동 생성됩니다. 직접 편집 시 자동 생성이 해제됩니다.</span>
+          </div>
+          <div class="field">
+            <label class="label">상태<span class="req">*</span></label>
+            <select class="select">
+              <option>DRAFT — 임시저장</option>
+              <option selected>PUBLISHED — 발행</option>
+              <option>ARCHIVED — 보관</option>
+            </select>
+            <span class="helper">발행 시 공개 노출됩니다.</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">요약</label>
+          <textarea class="textarea sm" placeholder="목록·메타 설명에 사용할 짧은 요약 (≤300자)">shadcn/ui 의 Zinc 다크 토큰을 brix-CMS 전반에 적용하는 방법을 정리합니다.</textarea>
+          <span class="helper">SEO description 및 카드 미리보기에 사용됩니다.</span>
+        </div>
+
+        <div class="field">
+          <label class="label">내용</label>
+          <textarea class="textarea lg" placeholder="본문을 입력하세요…">## 개요
+
+다크 모드는 `--background: 240 10% 3.9%` (Zinc-950) 위에
+`--foreground: 0 0% 98%` (Zinc-50) 텍스트를 올려 약 18:1 대비를 확보합니다.
+
+- border / muted / accent 는 모두 Zinc-800(#27272A)
+- muted-foreground 는 Zinc-400(#A1A1AA) 으로 보조 텍스트 위계 표현
+…</textarea>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-ghost">취소</button>
+        <button class="btn btn-outline">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          임시저장
+        </button>
+        <button class="btn btn-primary">저장하기</button>
+      </div>
+    </div>
+
+    <!-- ── 삭제 확인 AlertDialog (오버레이 시뮬레이션) ── -->
+    <div>
+      <div class="section-label">삭제 확인 다이얼로그 (오버레이 상태)</div>
+      <div class="dialog-zone">
+        <div class="overlay">
+          <div class="dialog">
+            <div class="dialog-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>
+            </div>
+            <h3>삭제 확인</h3>
+            <p>포스트 <span class="quote">‘shadcn/ui 다크 모드 디자인 토큰 정리’</span>을(를) 삭제합니다. 이 작업은 되돌릴 수 없습니다.</p>
+            <div class="dialog-actions">
+              <button class="btn btn-ghost">취소</button>
+              <button class="btn btn-destructive">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

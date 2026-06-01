@@ -1,0 +1,86 @@
+name: CI
+
+# Epic BF-738 인프라 산출물 (BF-742) — PR/메인 push 마다 배포 가능성을 자동 검증한다.
+#   - verify       : lint / typecheck / build / 단위 테스트 (AC2: PR 생성 시 CI 검증)
+#   - docker-build : docker compose 로 실제 배포 이미지 빌드 (AC1: 백엔드 산출물이 배포 가능)
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 같은 ref 의 이전 실행은 취소 — PR 연속 push 시 러너 비용 절감
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # CI 전용 더미 값 — 실제 시크릿 아님. 프로덕션 배포는 .env / 시크릿 매니저로 주입한다.
+  JWT_SECRET: ci-dummy-secret-not-for-production
+  DATABASE_URL: "file:./ci.db"
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # AC2 — 코드 검증: lint → typecheck → build → 단위 테스트
+  # ────────────────────────────────────────────────────────────
+  verify:
+    name: Lint · Typecheck · Build · Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # corepack 을 setup-node 의 pnpm 캐시보다 먼저 활성화해야 pnpm shim 이 인식된다.
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # @prisma/client 를 생성해야 typecheck/build 가 prisma import 를 해석할 수 있다.
+      - name: Prisma generate
+        run: pnpm prisma generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build (NestJS)
+        run: pnpm build
+
+      - name: Unit tests
+        run: pnpm test
+
+      # 인프라 회귀 가드 — 정적 계약만 검증 (docker/pnpm 런타임은 docker-build 잡이 실제 빌드로 커버).
+      - name: Infra regression guards (static)
+        run: node --test infra/test/bf-742-ci-workflow-regression.test.js test/bf-705-infra-regression.test.js
+        env:
+          BRIX_E2E_SKIP: "1"
+
+  # ────────────────────────────────────────────────────────────
+  # AC1 — 배포 가능성: docker compose 로 실제 이미지 빌드
+  # ────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # compose 가 env_file: .env 를 요구하므로 .env.example 로 더미 .env 를 준비한다.
+      - name: Prepare .env from example
+        run: cp .env.example .env
+
+      - name: Validate compose config
+        run: docker compose config
+
+      - name: Build deployable image
+        run: docker compose build

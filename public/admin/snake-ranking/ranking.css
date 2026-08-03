@@ -1,0 +1,192 @@
+/* BF-1576 · CMS 스네이크 랭킹 관리 화면 스타일
+ * frozen design tokens (계약값 — 변경 금지):
+ *   --color-surface        #ffffff
+ *   --color-text-primary   #1f2937
+ *   --color-border         #e5e7eb
+ *   --color-error          #dc2626
+ *   --space-cell-padding   8px
+ */
+
+.snake-ranking {
+  --color-surface: #ffffff;
+  --color-text-primary: #1f2937;
+  --color-border: #e5e7eb;
+  --color-error: #dc2626;
+  --space-cell-padding: 8px;
+
+  display: block;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.snake-ranking-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.snake-ranking-page__title {
+  color: var(--color-text-primary);
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+
+/* [hidden] 을 항상 존중 (일부 브라우저 display 규칙 대비) */
+.snake-ranking [hidden] {
+  display: none !important;
+}
+
+/* ── 필터 영역 ─────────────────────────────────────────── */
+.snake-ranking__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.snake-ranking__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.snake-ranking__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.snake-ranking__select {
+  padding: var(--space-cell-padding);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 14px;
+}
+
+.snake-ranking__select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── 상태 표시 ─────────────────────────────────────────── */
+.snake-ranking__status {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.snake-ranking__loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-cell-padding);
+  color: var(--color-text-primary);
+}
+
+.snake-ranking__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-text-primary);
+  border-radius: 50%;
+  display: inline-block;
+  animation: snake-ranking-spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snake-ranking__spinner {
+    animation: none;
+  }
+}
+
+@keyframes snake-ranking-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.snake-ranking__empty {
+  margin: 0;
+  padding: var(--space-cell-padding);
+  color: var(--color-text-primary);
+}
+
+.snake-ranking__error {
+  margin: 0;
+  padding: var(--space-cell-padding);
+  border: 1px solid var(--color-error);
+  border-radius: 6px;
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+/* ── 표 (반응형: 320px 이상 가로 스크롤 컨테이너) ───────── */
+.snake-ranking__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.snake-ranking__table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.snake-ranking__caption {
+  text-align: left;
+  padding: var(--space-cell-padding);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.snake-ranking__table th,
+.snake-ranking__table td {
+  padding: var(--space-cell-padding);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.snake-ranking__table thead th {
+  border-bottom: 2px solid var(--color-border);
+  font-size: 13px;
+}
+
+.snake-ranking__row td {
+  font-size: 14px;
+}
+
+/* ── 상태별 표시 전환 ──────────────────────────────────── */
+.snake-ranking[data-state="idle"] .snake-ranking__table-wrap,
+.snake-ranking[data-state="loading"] .snake-ranking__table-wrap,
+.snake-ranking[data-state="empty"] .snake-ranking__table-wrap,
+.snake-ranking[data-state="error"] .snake-ranking__table-wrap {
+  display: none;
+}
+
+/* ── 768px 이상: 필터 행 + 표 정렬 레이아웃 ────────────── */
+@media (min-width: 768px) {
+  .snake-ranking__filters {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 16px;
+  }
+
+  .snake-ranking__field {
+    min-width: 180px;
+  }
+
+  .snake-ranking__table {
+    min-width: 0;
+  }
+}

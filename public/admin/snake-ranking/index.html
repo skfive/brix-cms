@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>스네이크 랭킹 관리 · CMS</title>
+    <link rel="stylesheet" href="/admin/snake-ranking/ranking.css" />
+    <!-- backend API base URL 주입 지점 — 라우트가 placeholder 를 치환한다.
+         라우트를 거치지 않은 정적 오픈 시에는 빈 문자열(same-origin)로 남는다. -->
+    <script>
+      window.SNAKE_ADMIN_API_BASE = "__SNAKE_ADMIN_API_BASE_URL__";
+    </script>
+  </head>
+  <body>
+    <main class="snake-ranking-page">
+      <h1 class="snake-ranking-page__title">스네이크 랭킹 관리</h1>
+
+      <!-- data-state: idle | loading | success | empty | error -->
+      <section
+        id="snake-ranking-root"
+        class="snake-ranking"
+        data-state="idle"
+        aria-label="스네이크 랭킹 관리"
+      >
+        <div class="snake-ranking__filters">
+          <div class="snake-ranking__field">
+            <label class="snake-ranking__label" for="snake-ranking-mode-filter">모드</label>
+            <select id="snake-ranking-mode-filter" class="snake-ranking__select">
+              <option value="all">전체</option>
+            </select>
+          </div>
+
+          <div class="snake-ranking__field">
+            <label class="snake-ranking__label" for="snake-ranking-limit-select">표시 개수</label>
+            <select id="snake-ranking-limit-select" class="snake-ranking__select">
+              <option value="10">10개</option>
+              <option value="20" selected>20개</option>
+              <option value="50">50개</option>
+              <option value="100">100개</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 모든 상태를 색상만이 아닌 텍스트/접근성 이름으로 노출하는 상태 표시 영역 -->
+        <p
+          class="snake-ranking__status"
+          data-role="status"
+          role="status"
+          aria-live="polite"
+        >
+          준비되었습니다.
+        </p>
+
+        <!-- loading: 진행 표시 -->
+        <div class="snake-ranking__loading" data-role="loading" role="status" aria-live="polite" hidden>
+          <span class="snake-ranking__spinner" aria-hidden="true"></span>
+          <span>랭킹을 불러오는 중…</span>
+        </div>
+
+        <!-- empty -->
+        <p class="snake-ranking__empty" data-role="empty" hidden>표시할 랭킹이 없습니다.</p>
+
+        <!-- error: role="alert" 로 노출 -->
+        <div id="snake-ranking-error" class="snake-ranking__error" role="alert" hidden>
+          랭킹을 불러올 수 없습니다.
+        </div>
+
+        <!-- success: 320px 이상에서 가로 overflow 없이 스크롤 컨테이너로 처리 -->
+        <div class="snake-ranking__table-wrap" data-role="table-wrap">
+          <table id="snake-ranking-table" class="snake-ranking__table">
+            <caption class="snake-ranking__caption">스네이크 랭킹 목록</caption>
+            <thead>
+              <tr>
+                <th scope="col">순위</th>
+                <th scope="col">닉네임</th>
+                <th scope="col">점수</th>
+                <th scope="col">모드</th>
+                <th scope="col">기록 시각</th>
+              </tr>
+            </thead>
+            <tbody data-role="table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/admin/snake-ranking/ranking.js"></script>
+  </body>
+</html>

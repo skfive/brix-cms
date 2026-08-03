@@ -1,0 +1,1 @@
+{"artifactId":"TRACE-VERIFY-PACKET-0119454729951B25","artifactType":"TraceLink","relation":"verified_by","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"PKT-TEST-INFRA","status":"active","targetRef":"TS-INFRA","title":"Verify PKT-TEST-INFRA with TS-INFRA","writer":{"actorId":"01KT3CRZ3WD8YFTNJQVYBD7FVC","actorType":"persona","role":"planner"}}

@@ -1,0 +1,1 @@
+{"artifactId":"TRACE-BASELINE-DESIGN","artifactType":"TraceLink","relation":"elaborated_by","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"REQ-BASELINE-DELIVERY","status":"active","targetRef":"ARCH-BASELINE-DELIVERY","title":"요구사항-설계 추적 / Requirement-to-design trace","writer":{"actorId":"planner","actorType":"persona","role":"planner"}}

@@ -1,0 +1,1 @@
+{"artifactId":"TL-REQ-BACKEND-TEST","artifactType":"TraceLink","relation":"allocated_to","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"REQ-BACKEND-API","status":"active","targetRef":"PKT-TEST-BACKEND","title":"backend 요구사항→test-backend","writer":{"actorId":"01KT3CRZ3WD8YFTNJQVYBD7FVC","actorType":"persona","role":"planner"}}

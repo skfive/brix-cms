@@ -1,0 +1,1 @@
+{"artifactId":"TL-REQ-INFRA-UI","artifactType":"TraceLink","relation":"realized_by","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"REQ-INFRA-UI","status":"active","targetRef":"UI-SNAKE-RANKING","title":"infra 요구사항→UI 계약","writer":{"actorId":"01KT3CRZ3WD8YFTNJQVYBD7FVC","actorType":"persona","role":"planner"}}

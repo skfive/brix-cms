@@ -1,0 +1,1 @@
+{"artifactId":"TRACE-VERIFY-PACKET-54084A9D7460677B","artifactType":"TraceLink","relation":"verified_by","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"PKT-DEV-BACKEND","status":"active","targetRef":"TS-BACKEND","title":"Verify PKT-DEV-BACKEND with TS-BACKEND","writer":{"actorId":"01KT3CRZ3WD8YFTNJQVYBD7FVC","actorType":"persona","role":"planner"}}

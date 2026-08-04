@@ -1,0 +1,1 @@
+{"artifactId":"TRACE-BASELINE-PACKET","artifactType":"TraceLink","relation":"allocated_to","revision":1,"schemaVersion":"trace-link-v1","sourceRef":"REQ-BASELINE-DELIVERY","status":"active","targetRef":"RWP-BASELINE-DELIVERY","title":"요구사항-패킷 추적 / Requirement-to-packet trace","writer":{"actorId":"planner","actorType":"persona","role":"planner"}}

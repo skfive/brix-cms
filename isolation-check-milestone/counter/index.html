@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카운터</title>
+    <style>
+      :root {
+        --counter-color-primary: #2563eb;
+        --counter-space-gap: 12px;
+        --counter-font-size: 48px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #f8fafc;
+      }
+      .counter {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--counter-space-gap);
+        padding: var(--counter-space-gap);
+        width: 100%;
+        max-width: 320px;
+      }
+      .counter__display {
+        font-size: var(--counter-font-size);
+        line-height: 1.1;
+        color: var(--counter-color-primary);
+        font-variant-numeric: tabular-nums;
+        min-width: 2ch;
+        text-align: center;
+      }
+      .counter__controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--counter-space-gap);
+      }
+      .counter__button {
+        font-size: 1.25rem;
+        padding: 8px 20px;
+        border: 2px solid var(--counter-color-primary);
+        border-radius: 8px;
+        background: var(--counter-color-primary);
+        color: #ffffff;
+        cursor: pointer;
+      }
+      .counter__button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .counter__button--reset {
+        background: #ffffff;
+        color: var(--counter-color-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="counter">
+      <output
+        id="counter-value"
+        class="counter__display"
+        aria-live="polite"
+        >0</output
+      >
+      <div class="counter__controls">
+        <button
+          id="counter-decrement"
+          class="counter__button"
+          type="button"
+          aria-label="감소"
+        >
+          − 감소
+        </button>
+        <button
+          id="counter-reset"
+          class="counter__button counter__button--reset"
+          type="button"
+          aria-label="리셋"
+        >
+          리셋
+        </button>
+        <button
+          id="counter-increment"
+          class="counter__button"
+          type="button"
+          aria-label="증가"
+        >
+          + 증가
+        </button>
+      </div>
+    </main>
+    <script src="counter.js"></script>
+  </body>
+</html>

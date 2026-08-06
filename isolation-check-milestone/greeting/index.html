@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인사말 페이지</title>
+  <style>
+    /* §3.4 디자인 토큰 (exact 값 — 변경 금지) */
+    :root {
+      --color-action-primary: #2563eb;
+      --space-control-gap: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #f9fafb;
+    }
+
+    /* §3.7 320px 이상에서 가로 overflow 금지 — 세로 흐름 레이아웃 */
+    .greeting {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-control-gap);
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: var(--space-control-gap);
+    }
+
+    .greeting__label {
+      font-weight: 600;
+    }
+
+    .greeting__input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .greeting__submit {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      background: var(--color-action-primary);
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .greeting__submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .greeting__output {
+      width: 100%;
+      min-height: 1.5em;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main class="greeting">
+    <h1>인사말 페이지</h1>
+    <form id="greeting-form" class="greeting__form">
+      <label class="greeting__label" for="greeting-name-input">이름</label>
+      <input
+        id="greeting-name-input"
+        class="greeting__input"
+        type="text"
+        name="name"
+        autocomplete="off"
+        placeholder="이름을 입력하세요">
+      <button
+        id="greeting-submit"
+        class="greeting__submit"
+        type="submit"
+        aria-label="인사말 생성">인사말 생성</button>
+    </form>
+    <p id="greeting-output" class="greeting__output" role="status" aria-live="polite" data-state="idle"></p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

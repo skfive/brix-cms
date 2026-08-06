@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인사말</title>
+  <style>
+    /* §4.3 디자인 토큰 (exact 값 — 변경 금지) */
+    :root {
+      --color-greeting-text: #1f2937;
+      --space-greeting-gap: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #f9fafb;
+    }
+
+    /* §4.5 320px 이상에서 가로 overflow 금지 — 세로 흐름 + max-width + 줄바꿈 허용 */
+    .greeting {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-greeting-gap);
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: var(--space-greeting-gap);
+      color: var(--color-greeting-text);
+    }
+
+    .greeting__message {
+      margin: 0;
+      font-size: 1.5rem;
+      line-height: 1.3;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .greeting__date {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--color-greeting-text);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <!-- §4.1 DOM 계약 (frozen) — id/class 변경 금지 -->
+  <main id="greeting-root" class="greeting" data-state="initial">
+    <!-- §4.4 인사말은 h1 heading role -->
+    <h1 id="greeting-message" class="greeting__message">인사말을 불러오는 중…</h1>
+    <!-- §4.4 날짜는 datetime 속성을 가진 time 요소 -->
+    <time id="greeting-date" class="greeting__date" datetime="" aria-label="오늘 날짜: 불러오는 중">불러오는 중…</time>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // §4.2 상태 계약 (frozen 텍스트 — 변경 금지)
+      var GREETING_TEXT = '안녕하세요! 오늘도 좋은 하루 되세요.';
+      var DATE_ERROR_TEXT = '날짜를 불러올 수 없습니다';
+
+      // 오늘 날짜를 YYYY-MM-DD 로 포맷한다. 실패 시 null. (순수 함수 — DOM 비의존)
+      function formatToday(date) {
+        if (Object.prototype.toString.call(date) !== '[object Date]' || isNaN(date.getTime())) {
+          return null;
+        }
+        var y = date.getFullYear();
+        var m = String(date.getMonth() + 1).padStart(2, '0');
+        var d = String(date.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + d;
+      }
+
+      // 날짜 계산 결과를 상태(loaded/date-error)로 환원한다. (순수 함수)
+      function resolveDate(date) {
+        var iso = formatToday(date);
+        if (iso) {
+          return { state: 'loaded', text: iso, datetime: iso };
+        }
+        return { state: 'date-error', text: DATE_ERROR_TEXT, datetime: null };
+      }
+
+      // DOM 배선 — loaded/date-error 렌더 및 초기화 후조건(초기값 복원) 지원
+      function render() {
+        var rootEl = document.getElementById('greeting-root');
+        var messageEl = document.getElementById('greeting-message');
+        var dateEl = document.getElementById('greeting-date');
+        if (!rootEl || !messageEl || !dateEl) {
+          return;
+        }
+
+        // loaded: 인사말 한 줄
+        messageEl.textContent = GREETING_TEXT;
+
+        var result = resolveDate(new Date());
+        dateEl.textContent = result.text;
+        if (result.datetime) {
+          dateEl.setAttribute('datetime', result.datetime);
+        } else {
+          dateEl.setAttribute('datetime', '');
+        }
+        // §4.4 상태명을 접근성 이름으로도 노출(색상 비의존)
+        dateEl.setAttribute('aria-label', '오늘 날짜(' + result.state + '): ' + result.text);
+        rootEl.setAttribute('data-state', result.state);
+      }
+
+      // §4.2 후조건: 초기화 시 상태·표시를 초기값으로 되돌린다
+      function reset() {
+        var rootEl = document.getElementById('greeting-root');
+        var messageEl = document.getElementById('greeting-message');
+        var dateEl = document.getElementById('greeting-date');
+        if (!rootEl || !messageEl || !dateEl) {
+          return;
+        }
+        rootEl.setAttribute('data-state', 'initial');
+        messageEl.textContent = '인사말을 불러오는 중…';
+        dateEl.textContent = '불러오는 중…';
+        dateEl.setAttribute('datetime', '');
+        dateEl.setAttribute('aria-label', '오늘 날짜: 불러오는 중');
+      }
+
+      // 순수 로직을 테스트에서 DOM 없이 로드할 수 있도록 노출
+      var root = typeof globalThis !== 'undefined' ? globalThis : this;
+      root.__greeting = {
+        GREETING_TEXT: GREETING_TEXT,
+        DATE_ERROR_TEXT: DATE_ERROR_TEXT,
+        formatToday: formatToday,
+        resolveDate: resolveDate,
+        render: render,
+        reset: reset
+      };
+
+      // 브라우저에서만 DOM 배선 (Node 테스트에서는 document 미정의 → 건너뜀)
+      if (typeof document !== 'undefined') {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', render);
+        } else {
+          render();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

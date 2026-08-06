@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>배지 상태 표시 시안 — BF-1837</title>
+  <style>
+    :root {
+      /* frozen design token (ui-contract@v1 — 변경 금지) */
+      --color-badge-success: #16a34a;
+      --color-badge-warning: #d97706;
+      --color-badge-error:   #dc2626;
+      --color-badge-text:    #ffffff;
+      --space-badge-gap:     12px;
+
+      /* mockup 전용 보조 색 (계약 외 시각화용) */
+      --page-bg:   #f8fafc;
+      --panel-bg:  #ffffff;
+      --ink:       #1e293b;
+      --ink-muted: #64748b;
+      --border:    #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 20px;
+      background: var(--page-bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      line-height: 1.5;
+    }
+
+    .wrap { max-width: 760px; margin: 0 auto; }
+
+    h1 { font-size: 24px; font-weight: 700; line-height: 1.3; margin: 0 0 4px; }
+    .subtitle { color: var(--ink-muted); font-size: 14px; margin: 0 0 24px; }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel h2 { font-size: 15px; font-weight: 700; margin: 0 0 16px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+    /* ── 배지 컴포넌트 (명세 §5·§6) ── */
+    #badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-badge-gap);
+    }
+
+    .badge {
+      color: var(--color-badge-text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+    }
+    /* .badge__label — bold + large text 로 AA large-text(3:1) 경로 충족 (명세 §2·§3) */
+    .badge__label {
+      font-weight: 700;
+      font-size: 18.66px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .badge--success { background: var(--color-badge-success); }
+    .badge--warning { background: var(--color-badge-warning); }
+    .badge--error   { background: var(--color-badge-error); }
+
+    /* ── 명세 참조용 대비/토큰 표 ── */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--ink-muted); font-weight: 700; }
+    .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,.08); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+    .note { font-size: 13px; color: var(--ink-muted); margin: 12px 0 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>배지 상태 표시 시안</h1>
+    <p class="subtitle">BF-1837 · 성공 / 경고 / 오류 3종 상태 배지 — 시각 mockup (dev 실제 산출물 아님)</p>
+
+    <!-- 배지 3종 시각화 (명세 §5.3) -->
+    <section class="panel">
+      <h2>배지 3종 — 색상 + 상태명 이중 표기</h2>
+      <div id="badge-list">
+        <span id="badge-success" class="badge badge--success" role="status">
+          <span class="badge__label">성공</span>
+        </span>
+        <span id="badge-warning" class="badge badge--warning" role="status">
+          <span class="badge__label">경고</span>
+        </span>
+        <span id="badge-error" class="badge badge--error" role="status">
+          <span class="badge__label">오류</span>
+        </span>
+      </div>
+      <p class="note">각 배지는 색상뿐 아니라 '성공'/'경고'/'오류' 텍스트 라벨을 노출하며 <code>role="status"</code> 를 가진다. 배지 라벨은 bold + 18.66px 이상으로 large-text AA(3:1) 대비 경로를 충족한다.</p>
+    </section>
+
+    <!-- 컬러 토큰 & 대비 (명세 §2) -->
+    <section class="panel">
+      <h2>Design Token &amp; 대비 (frozen — 변경 금지)</h2>
+      <table>
+        <thead>
+          <tr><th>토큰</th><th>HEX</th><th>대비 (vs #ffffff)</th><th>AA 판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="swatch" style="background:#16a34a"></span><code>--color-badge-success</code></td>
+            <td><code>#16a34a</code></td><td>≈ 3.30:1</td><td>large-text AA(3:1) 충족</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background:#d97706"></span><code>--color-badge-warning</code></td>
+            <td><code>#d97706</code></td><td>≈ 3.19:1</td><td>large-text AA(3:1) 충족</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background:#dc2626"></span><code>--color-badge-error</code></td>
+            <td><code>#dc2626</code></td><td>≈ 4.83:1</td><td>normal-text AA(4.5:1) 충족</td>
+          </tr>
+          <tr>
+            <td><span class="swatch" style="background:#ffffff"></span><code>--color-badge-text</code></td>
+            <td><code>#ffffff</code></td><td>—</td><td>배지 텍스트 공통</td>
+          </tr>
+          <tr>
+            <td><code>--space-badge-gap</code></td>
+            <td><code>12px</code></td><td>—</td><td>배지 간 간격</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">success·warning 은 일반 텍스트 4.5:1 에 미달하므로, 라벨을 bold + large text 로 규정해 large-text AA(3:1)로 계약 위반 없이 충족한다. (명세 §2 모호함 flag 참조)</p>
+    </section>
+
+    <!-- 320px 반응형 미리보기 (명세 §4·AC-3) -->
+    <section class="panel">
+      <h2>320px 반응형 — content overflow 없음</h2>
+      <div style="width:320px; max-width:100%; border:1px dashed var(--border); border-radius:8px; padding:16px;">
+        <div style="display:flex; flex-wrap:wrap; gap:var(--space-badge-gap);">
+          <span class="badge badge--success" role="status"><span class="badge__label">성공</span></span>
+          <span class="badge badge--warning" role="status"><span class="badge__label">경고</span></span>
+          <span class="badge badge--error" role="status"><span class="badge__label">오류</span></span>
+        </div>
+      </div>
+      <p class="note">320px 폭에서 <code>flex-wrap:wrap</code> + <code>--space-badge-gap</code> 로 배지가 자연스럽게 줄바꿈되며 overflow 가 발생하지 않는다.</p>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>km↔mile 변환기</title>
+  <style>
+    /* §3.2 디자인 토큰 (exact 값 — 변경 금지) */
+    :root {
+      --color-action-primary: #2563eb;
+      --space-control-gap: 12px;
+      --color-error-text: #dc2626;
+      --color-result-text: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #f9fafb;
+    }
+
+    /* §3.1 루트 레이아웃 — 기본은 세로 쌓기(§3.4 480px 미만) */
+    .converter {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-control-gap);
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: var(--space-control-gap);
+    }
+
+    .converter__field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .converter__field label {
+      font-size: 0.9rem;
+      color: var(--color-result-text);
+      word-break: keep-all;
+    }
+
+    .converter__field input {
+      width: 100%;
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+    }
+
+    /* §3.1 결과 영역 — 변환 결과 텍스트 */
+    .converter__result {
+      margin: 0;
+      min-height: 1.4em;
+      font-size: 1rem;
+      color: var(--color-result-text);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    /* §3.1 초기화 버튼 — 주 실행 control 강조색 */
+    .converter__reset {
+      align-self: flex-start;
+      padding: 8px 16px;
+      font-size: 1rem;
+      color: #ffffff;
+      background: var(--color-action-primary);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .converter__reset:focus-visible {
+      outline: 2px solid var(--color-action-primary);
+      outline-offset: 2px;
+    }
+
+    /* §3.1 오류 영역 — invalid-input 텍스트 (색상 단독 표시 금지) */
+    .converter__error {
+      margin: 0;
+      min-height: 1.4em;
+      font-size: 0.95rem;
+      color: var(--color-error-text);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    /* §3.4 480px 이상에서는 두 입력 필드를 가로로 배치 */
+    @media (min-width: 480px) {
+      .converter__fields {
+        display: flex;
+        gap: var(--space-control-gap);
+      }
+
+      .converter__fields .converter__field {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- §3.1 DOM 계약 (frozen) — id/class 변경 금지 -->
+  <main id="converter-root" class="converter" data-state="idle" aria-label="상태: idle">
+    <div class="converter__fields">
+      <!-- km → mile -->
+      <div class="converter__field">
+        <label for="km-input">킬로미터(km)</label>
+        <input id="km-input" type="text" inputmode="decimal" autocomplete="off"
+               aria-label="킬로미터 입력" placeholder="예: 10">
+        <p id="mile-result" class="converter__result" aria-label="킬로미터→마일 변환 결과: 없음"></p>
+      </div>
+
+      <!-- mile → km -->
+      <div class="converter__field">
+        <label for="mile-input">마일(mile)</label>
+        <input id="mile-input" type="text" inputmode="decimal" autocomplete="off"
+               aria-label="마일 입력" placeholder="예: 10">
+        <p id="km-result" class="converter__result" aria-label="마일→킬로미터 변환 결과: 없음"></p>
+      </div>
+    </div>
+
+    <!-- §4.2 초기화 버튼 — 키보드 포커스·실행 가능 -->
+    <button id="reset-button" type="button" class="converter__reset" aria-label="입력 초기화">초기화</button>
+
+    <!-- §5.3 오류 메시지 영역 (role=alert 로 상태명·사유 노출) -->
+    <p class="converter__error" role="alert"></p>
+  </main>
+
+  <script src="units.js"></script>
+</body>
+</html>

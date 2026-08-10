@@ -4,6 +4,37 @@ NestJS 기반 블로그 CMS 백엔드 + Next.js 프론트엔드 — Prisma/SQLit
 
 ---
 
+## 시작하기
+
+이 저장소가 처음이라면 아래 순서로 진행하세요. 각 단계의 자세한 설명은 링크된 섹션을 참고하세요.
+
+1. **사전 요구사항 확인** — Node.js 20.x, pnpm 10.x, Docker/Docker Compose 24.x 이상 (자세히: [2. 로컬 개발 환경](#2-로컬-개발-환경))
+2. **환경 변수 설정**
+   ```bash
+   cp .env.example .env
+   # .env 를 열어 JWT_SECRET 를 임의의 긴 문자열로 교체
+   ```
+   (자세히: [3. 환경 변수](#3-환경-변수))
+3. **실행 방법 선택**
+   - Docker Compose로 한 번에 실행 (자세히: [1. 빠른 시작 (Docker Compose)](#1-빠른-시작-docker-compose))
+     ```bash
+     docker compose up --build
+     ```
+   - 로컬에서 직접 실행 (자세히: [2. 로컬 개발 환경](#2-로컬-개발-환경))
+     ```bash
+     pnpm install
+     pnpm prisma generate
+     pnpm prisma migrate dev
+     pnpm start:dev
+     ```
+4. **정상 기동 확인**
+   ```bash
+   curl http://localhost:3000/health
+   # → { "status": "ok" }
+   ```
+
+---
+
 ## 목차
 
 1. [빠른 시작 (Docker Compose)](#1-빠른-시작-docker-compose)

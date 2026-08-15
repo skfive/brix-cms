@@ -1,0 +1,17 @@
+{
+  "name": "link-shortener",
+  "version": "0.1.0",
+  "private": true,
+  "description": "독립 Express 기반 단축 링크 서비스 (BF-2095) — 루트 tsconfig 모노레포와 무관한 별도 패키지",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  }
+}

@@ -1,0 +1,119 @@
+:root {
+  --color-action-primary: #2563eb;
+  --color-error: #dc2626;
+  --color-success: #16a34a;
+  --space-control-gap: 12px;
+  --radius-control: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.link-app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-control-gap);
+}
+
+.link-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-control-gap);
+}
+
+.link-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.link-form__label {
+  font-weight: 600;
+}
+
+.link-form__field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-control);
+  font-size: 1rem;
+}
+
+.link-form__submit {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-action-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-form__submit[aria-busy="true"] {
+  position: relative;
+  padding-left: 34px;
+}
+
+.link-form__submit[aria-busy="true"]::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: link-spin 0.6s linear infinite;
+}
+
+@keyframes link-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.link-form__status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.link-result {
+  margin-top: var(--space-control-gap);
+  padding: var(--space-control-gap);
+  border-radius: var(--radius-control);
+  border: 1px solid #cbd5e1;
+  word-break: break-word;
+}
+
+.link-result--success {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.link-result--error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+@media (max-width: 320px) {
+  .link-app {
+    padding: 8px;
+  }
+}

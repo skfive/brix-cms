@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>링크 단축 서비스</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-state="idle">
+  <main class="link-app">
+    <h1>링크 단축 서비스</h1>
+    <form id="link-form" class="link-form" novalidate>
+      <div class="link-form__field">
+        <label class="link-form__label" for="link-url-input">원본 URL</label>
+        <input
+          id="link-url-input"
+          name="url"
+          type="url"
+          required
+          placeholder="https://example.com"
+        />
+      </div>
+      <div class="link-form__field">
+        <label class="link-form__label" for="link-custom-slug-input">사용자 지정 슬러그 (선택)</label>
+        <input
+          id="link-custom-slug-input"
+          name="customSlug"
+          type="text"
+          minlength="4"
+          maxlength="32"
+          pattern="[A-Za-z0-9-]{4,32}"
+          placeholder="예: my-link"
+        />
+      </div>
+      <button
+        id="link-submit-btn"
+        class="link-form__submit"
+        type="submit"
+        aria-label="단축 링크 생성"
+      >
+        단축 링크 생성
+      </button>
+      <p id="link-form-status" class="link-form__status" role="status">현재 상태: 대기 중</p>
+    </form>
+    <section id="link-result" class="link-result" aria-live="polite" hidden>
+      <p id="link-result-short-url"></p>
+      <p id="link-result-error"></p>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

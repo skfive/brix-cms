@@ -1,0 +1,92 @@
+:root {
+  --color-action-primary: #2563eb;
+  --color-error: #dc2626;
+  --space-control-gap: 12px;
+  --radius-control: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.link-app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-control-gap);
+}
+
+.link-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-control-gap);
+}
+
+.link-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.link-form__label {
+  font-weight: 600;
+}
+
+.link-form__field input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-control);
+  font-size: 1rem;
+}
+
+.link-form__submit {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-action-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-form__status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.link-result {
+  margin-top: var(--space-control-gap);
+  padding: var(--space-control-gap);
+  border-radius: var(--radius-control);
+  border: 1px solid #cbd5e1;
+  word-break: break-word;
+}
+
+.link-result--success {
+  border-color: var(--color-action-primary);
+}
+
+.link-result--error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+@media (max-width: 320px) {
+  .link-app {
+    padding: 8px;
+  }
+}

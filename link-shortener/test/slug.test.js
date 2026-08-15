@@ -2,6 +2,8 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   SLUG_LENGTH,
   generateSlug,
@@ -47,4 +49,11 @@ test('generateUniqueSlug는 5회 모두 충돌하면 예외를 던진다', async
   };
   await assert.rejects(() => generateUniqueSlug(exists), /재시도 초과/);
   assert.equal(callCount, 5);
+});
+
+test('generateSlug는 예측 불가능한 crypto 기반 난수를 사용하고 Math.random을 쓰지 않는다', () => {
+  const source = fs.readFileSync(path.join(__dirname, '../src/slug.js'), 'utf8');
+  assert.equal(/Math\.random/.test(source), false);
+  assert.match(source, /require\(['"]crypto['"]\)/);
+  assert.match(source, /crypto\.random(Int|Bytes)/);
 });

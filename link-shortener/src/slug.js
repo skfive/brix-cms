@@ -1,5 +1,7 @@
 'use strict';
 
+const crypto = require('crypto');
+
 const BASE62_ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 const SLUG_LENGTH = 7;
@@ -9,7 +11,7 @@ const MAX_GENERATE_RETRIES = 5;
 function generateSlug() {
   let slug = '';
   for (let i = 0; i < SLUG_LENGTH; i += 1) {
-    const index = Math.floor(Math.random() * BASE62_ALPHABET.length);
+    const index = crypto.randomInt(BASE62_ALPHABET.length);
     slug += BASE62_ALPHABET[index];
   }
   return slug;

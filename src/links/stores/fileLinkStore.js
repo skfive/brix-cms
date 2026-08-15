@@ -3,13 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-function normalizeLink(link) {
-  if (!link) return null;
-  return {
-    ...link,
-    expiresAt: link.expiresAt === undefined ? null : link.expiresAt,
-  };
-}
+const { normalizeLink } = require('../expiry');
 
 function readAll(filePath) {
   if (!fs.existsSync(filePath)) {

@@ -1,12 +1,6 @@
 'use strict';
 
-function normalizeLink(link) {
-  if (!link) return null;
-  return {
-    ...link,
-    expiresAt: link.expiresAt === undefined ? null : link.expiresAt,
-  };
-}
+const { normalizeLink } = require('../expiry');
 
 function createMemoryLinkStore() {
   const links = new Map();

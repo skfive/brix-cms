@@ -12,4 +12,12 @@ function isExpired(link, now) {
   return now.getTime() >= new Date(expiresAt).getTime();
 }
 
-module.exports = { computeExpiresAt, isExpired };
+function normalizeLink(link) {
+  if (!link) return null;
+  return {
+    ...link,
+    expiresAt: link.expiresAt === undefined ? null : link.expiresAt,
+  };
+}
+
+module.exports = { computeExpiresAt, isExpired, normalizeLink };

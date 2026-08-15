@@ -33,26 +33,37 @@ test('createLink: ttlSeconds 지정 시 ISO expiresAt이 응답에 포함된다'
   assert.equal(res.body.expiresAt, '2026-08-15T00:01:00.000Z');
 });
 
-test('createLink: ttlSeconds가 60 미만이면 400 INVALID_TTL을 반환한다', async () => {
+test('createLink: ttlSeconds가 0이면 400 INVALID_TTL을 반환한다', async () => {
   const store = createMemoryLinkStore();
   const res = await createLink(
     store,
-    { targetUrl: 'https://example.com', slug: 'a3', ttlSeconds: 59 },
+    { targetUrl: 'https://example.com', slug: 'a3', ttlSeconds: 0 },
     fixedClock('2026-08-15T00:00:00.000Z'),
   );
   assert.equal(res.status, 400);
   assert.equal(res.body.error.code, 'INVALID_TTL');
 });
 
-test('createLink: ttlSeconds가 2592000 초과면 400 INVALID_TTL을 반환한다', async () => {
+test('createLink: ttlSeconds가 음수이면 400 INVALID_TTL을 반환한다', async () => {
   const store = createMemoryLinkStore();
   const res = await createLink(
     store,
-    { targetUrl: 'https://example.com', slug: 'a4', ttlSeconds: 2592001 },
+    { targetUrl: 'https://example.com', slug: 'a4', ttlSeconds: -1 },
     fixedClock('2026-08-15T00:00:00.000Z'),
   );
   assert.equal(res.status, 400);
   assert.equal(res.body.error.code, 'INVALID_TTL');
+});
+
+test('createLink: ttlSeconds가 2592000을 초과해도 상한 없이 유효하다', async () => {
+  const store = createMemoryLinkStore();
+  const res = await createLink(
+    store,
+    { targetUrl: 'https://example.com', slug: 'a4b', ttlSeconds: 2592001 },
+    fixedClock('2026-08-15T00:00:00.000Z'),
+  );
+  assert.equal(res.status, 201);
+  assert.equal(res.body.expiresAt, '2026-09-14T00:00:01.000Z');
 });
 
 test('createLink: ttlSeconds가 정수가 아니면 400 INVALID_TTL을 반환한다', async () => {
@@ -83,7 +94,9 @@ test('resolveLink: 만료된 링크는 410 LINK_EXPIRED를 반환하고 hits는 
   });
   const res = await resolveLink(store, 'expired', fixedClock('2026-08-15T00:01:00.000Z'));
   assert.equal(res.status, 410);
-  assert.equal(res.body.error.code, 'LINK_EXPIRED');
+  assert.equal(res.body.error, 'LINK_EXPIRED');
+  assert.equal(res.body.slug, 'expired');
+  assert.equal(res.body.expiredAt, '2026-08-15T00:01:00.000Z');
   const stored = await store.get('expired');
   assert.equal(stored.hits, 0);
 });

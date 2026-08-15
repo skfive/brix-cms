@@ -2,15 +2,8 @@
 
 const { computeExpiresAt, isExpired } = require('./expiry');
 
-const TTL_MIN_SECONDS = 60;
-const TTL_MAX_SECONDS = 2592000;
-
 function isValidTtlSeconds(ttlSeconds) {
-  return (
-    Number.isInteger(ttlSeconds) &&
-    ttlSeconds >= TTL_MIN_SECONDS &&
-    ttlSeconds <= TTL_MAX_SECONDS
-  );
+  return Number.isInteger(ttlSeconds) && ttlSeconds > 0;
 }
 
 async function createLink(store, { targetUrl, slug, ttlSeconds }, clock) {
@@ -41,7 +34,7 @@ async function resolveLink(store, slug, clock) {
   if (isExpired(link, now)) {
     return {
       status: 410,
-      body: { error: { code: 'LINK_EXPIRED' }, slug, expiredAt: link.expiresAt },
+      body: { error: 'LINK_EXPIRED', slug, expiredAt: link.expiresAt },
     };
   }
 
@@ -76,6 +69,4 @@ module.exports = {
   getStats,
   deleteLink,
   isValidTtlSeconds,
-  TTL_MIN_SECONDS,
-  TTL_MAX_SECONDS,
 };

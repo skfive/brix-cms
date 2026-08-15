@@ -17,6 +17,9 @@
     error: '오류 발생',
   };
 
+  var SUBMIT_BTN_IDLE_TEXT = submitBtn.textContent;
+  var SUBMIT_BTN_SUBMITTING_TEXT = '생성 중…';
+
   function setState(state) {
     document.body.setAttribute('data-state', state);
     if (statusEl) {
@@ -35,7 +38,7 @@
     resultEl.hidden = false;
     resultEl.classList.remove('link-result--error');
     resultEl.classList.add('link-result--success');
-    shortUrlEl.textContent = data.shortUrl;
+    shortUrlEl.textContent = STATE_TEXT.success + ': ' + data.shortUrl;
     errorEl.textContent = '';
   }
 
@@ -43,7 +46,7 @@
     resultEl.hidden = false;
     resultEl.classList.remove('link-result--success');
     resultEl.classList.add('link-result--error');
-    errorEl.textContent = message;
+    errorEl.textContent = STATE_TEXT.error + ': ' + message;
     shortUrlEl.textContent = '';
   }
 
@@ -52,6 +55,8 @@
       el.disabled = isSubmitting;
     });
     submitBtn.disabled = isSubmitting;
+    submitBtn.setAttribute('aria-busy', isSubmitting ? 'true' : 'false');
+    submitBtn.textContent = isSubmitting ? SUBMIT_BTN_SUBMITTING_TEXT : SUBMIT_BTN_IDLE_TEXT;
   }
 
   form.addEventListener('submit', function (event) {
@@ -88,7 +93,7 @@
       .catch(function (err) {
         showError(err.message || '알 수 없는 오류가 발생했습니다.');
         setSubmitting(false);
-        setState('idle');
+        setState('error');
       });
   });
 })();

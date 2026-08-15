@@ -1,6 +1,7 @@
 :root {
   --color-action-primary: #2563eb;
   --color-error: #dc2626;
+  --color-success: #16a34a;
   --space-control-gap: 12px;
   --radius-control: 6px;
 }
@@ -62,6 +63,31 @@ body {
   cursor: not-allowed;
 }
 
+.link-form__submit[aria-busy="true"] {
+  position: relative;
+  padding-left: 34px;
+}
+
+.link-form__submit[aria-busy="true"]::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: link-spin 0.6s linear infinite;
+}
+
+@keyframes link-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .link-form__status {
   margin: 0;
   font-size: 0.9rem;
@@ -77,7 +103,8 @@ body {
 }
 
 .link-result--success {
-  border-color: var(--color-action-primary);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 .link-result--error {

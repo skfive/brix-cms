@@ -25,7 +25,8 @@
     "test:e2e": "jest --config test/jest-e2e.json --forceExit",
     "test:api": "jest --config test/jest-e2e.json --forceExit --testPathPattern=bf-713-demo-account",
     "verify": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
-    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts",
+    "bench:links": "node scripts/bench-links.js"
   },
   "packageManager": "pnpm@10.34.1",
   "prisma": {
